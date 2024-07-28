@@ -91,13 +91,11 @@ def _get_lines_from_proc(proc: str | list[str]) -> list[str]:
 
 
 def _get_fields_from_proc(proc: str | list[str], line: int, delimiter: str | None = None) -> list[str]:
-    source = subprocess.run([proc], capture_output=True, text=True)
-    return [line for line in source.stdout.split('\n') if line][line].split(delimiter)
+    return _get_lines_from_proc(proc)[line].split(delimiter)
 
 
 def _get_field_from_proc(proc: str | list[str], line: int, field: int, delimiter: str | None = None) -> float:
-    source = subprocess.run([proc], capture_output=True, text=True)
-    return float([line for line in source.stdout.split('\n') if line][line].split(delimiter)[field])
+    return float(_get_fields_from_proc(proc, line, delimiter)[field])
 
 
 def _get_ip_address() -> str:
