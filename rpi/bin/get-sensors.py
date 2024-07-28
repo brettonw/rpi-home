@@ -85,17 +85,17 @@ class RpiSensorBuilder:
 
 
 # utility functions to get info from the host
-def _get_lines_from_proc(proc: str) -> list[str]:
-    source = subprocess.run([proc], capture_output=True, text=True)
+def _get_lines_from_proc(proc: str | list[str]) -> list[str]:
+    source = subprocess.run([proc] if isinstance(proc, str) else proc, capture_output=True, text=True)
     return [line for line in source.stdout.split('\n') if line]
 
 
-def _get_fields_from_proc(proc: str, line: int, delimiter: str | None = None) -> list[str]:
+def _get_fields_from_proc(proc: str | list[str], line: int, delimiter: str | None = None) -> list[str]:
     source = subprocess.run([proc], capture_output=True, text=True)
     return [line for line in source.stdout.split('\n') if line][line].split(delimiter)
 
 
-def _get_field_from_proc(proc: str, line: int, field: int, delimiter: str | None = None) -> float:
+def _get_field_from_proc(proc: str | list[str], line: int, field: int, delimiter: str | None = None) -> float:
     source = subprocess.run([proc], capture_output=True, text=True)
     return float([line for line in source.stdout.split('\n') if line][line].split(delimiter)[field])
 
@@ -120,7 +120,7 @@ def _get_os_description() -> str:
 class RpiSensorHost:
     @classmethod
     def uptime(cls):
-        uptime = _get_field_from_proc("cat /proc/uptime", 0, 0)
+        uptime = _get_field_from_proc(["cat", "/proc/uptime"], 0, 0)
         return RpiSensorBuilder.make_float_sensor("uptime", uptime, 2, SensorDeviceClass.DURATION)
 
     @classmethod
@@ -130,23 +130,23 @@ class RpiSensorHost:
 
     @classmethod
     def temperature(cls) -> dict:
-        temperature = _get_field_from_proc("cat /sys/class/thermal/thermal_zone0/temp", 0, 0) / 1000.0
+        temperature = _get_field_from_proc(["cat", "/sys/class/thermal/thermal_zone0/temp"], 0, 0) / 1000.0
         return RpiSensorBuilder.make_float_sensor("cpu_temperature", temperature, 3, SensorDeviceClass.TEMPERATURE)
 
     @classmethod
     def memory(cls):
-        fields = _get_fields_from_proc("free -bw", 1)
+        fields = _get_fields_from_proc(["free", "-bw"], 1)
         total = float(fields[1])
         return RpiSensorBuilder.make_float_sensor("memory", (100.0 * (total - float(fields[-1]))) / total, 2, PERCENTAGE)
 
     @classmethod
     def swap(cls):
-        fields = _get_fields_from_proc("free -bw", 2)
+        fields = _get_fields_from_proc(["free", "-bw"], 2)
         return RpiSensorBuilder.make_float_sensor("swap", (100.0 * float(fields[2])) / float(fields[1]), 2, PERCENTAGE)
 
     @classmethod
     def disk(cls):
-        fields = _get_fields_from_proc("df --block-size=1K --output=size,used,avail /", 1)
+        fields = _get_fields_from_proc(["df", "--block-size=1K", "--output=size,used,avail", "/"], 1)
         return RpiSensorBuilder.make_float_sensor("disk", (100.0 * float(fields[1])) / float(fields[0]), 2, PERCENTAGE)
 
     @classmethod
