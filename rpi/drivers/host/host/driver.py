@@ -6,12 +6,10 @@ from typing import Any
 from homeassistant.const import PERCENTAGE
 from homeassistant.components.sensor import SensorDeviceClass
 
-from rpi_sensor.rpi_sensor import RpiSensor
-from rpi_sensor.rpi_sensor_builder import RpiSensorBuilder
-from rpi_sensor.utils import get_fields_from_proc, get_float_field_from_proc
+from rpi_home import RpiSensor, RpiSensorBuilder, get_fields_from_proc, get_float_field_from_proc
 
 
-class RpiSensorHost(RpiSensor):
+class Driver(RpiSensor):
     @classmethod
     def uptime(cls):
         uptime = get_float_field_from_proc(["cat", "/proc/uptime"], 0, 0)

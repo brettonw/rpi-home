@@ -46,6 +46,10 @@ class RpiSensorDevice:
 
     @staticmethod
     def import_class_from_module(module_name: str, class_name: str) -> RpiSensor | None:
+        # condition the module name to start with "rpi_home_"
+        if not module_name.startswith("rpi_home_"):
+            module_name = "rpi_home_" + module_name
+
         # try to load the module
         try:
             imported_module = importlib.import_module(module_name)
@@ -89,7 +93,7 @@ class RpiSensorDevice:
             # sensor has a name, a pip module dependency, and a python class to use as a driver - which should be a module installed using pip
             # XXX do I even need the name? what if I have a bunch of drivers that report the same name, like temperature?
             _LOGGER.debug(f"reading sensor ({sensor[NAME]})")
-            cls = self.import_class_from_module(sensor[MODULE_NAME], sensor[CLASS_NAME])
+            cls = self.import_class_from_module(sensor[MODULE_NAME], sensor.get(CLASS_NAME, "Driver"))
             if cls is not None:
                 sensor_outputs = cls.report()
                 if sensor_outputs is not None:
