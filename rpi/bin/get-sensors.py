@@ -7,154 +7,160 @@ import os
 import sys
 import time
 import socket
+import logging
 
 from homeassistant.const import UnitOfTime, UnitOfTemperature, UnitOfInformation, PERCENTAGE
 from homeassistant.components.sensor import SensorDeviceClass, DEVICE_CLASS_UNITS
 
+_LOGGER = logging.getLogger(__name__)
+
 VERSION = "2.0.0"
 
 
-def _check_type_unit(sensor_device_class: SensorDeviceClass | str, unit: str | None) -> str | None:
-    # check to see if the sensor_device_class is in the sensor_device_class->unit mapping, and if so, either
-    # validate the unit passed, or return a default (if possible)
-    if sensor_device_class in DEVICE_CLASS_UNITS:
-        units = DEVICE_CLASS_UNITS[sensor_device_class]
-        if len(units) > 0:
-            if unit is None:
-                # just return the first one, assuming it's a default
-                # XXX could warn the user the choice is apparently random if units has more than one
-                # XXX entry
-                return next(iter(units))
+class RpiSensorBuilder:
+    _SENSOR_DEVICE_CLASS_DEFAULT_UNIT_OF_MEASUREMENT = {
+        SensorDeviceClass.DURATION: UnitOfTime.SECONDS,
+        SensorDeviceClass.TEMPERATURE: UnitOfTemperature.CELSIUS,
+        SensorDeviceClass.DATA_SIZE: UnitOfInformation.BYTES
+    }
 
-            if unit in units:
-                return unit
-            else:
-                # XXX could warn the user their choice appears to be incorrect
-                return unit
+    @classmethod
+    def _verify_unit(cls, sensor_device_class: SensorDeviceClass | str, unit: str | None) -> str | None:
+        # check to see if the sensor_device_class is in the sensor_device_class->unit mapping, and if so, either
+        # validate the unit passed, or return a default (if possible)
+        if sensor_device_class in DEVICE_CLASS_UNITS:
+            units = DEVICE_CLASS_UNITS[sensor_device_class]
+            if len(units) > 0:
+                if unit is None:
+                    # if there is only one unit for the device class, assume that's the default
+                    if len(units) == 1:
+                        return next(iter(units))
 
-    # we don't know what this is
-    return unit
+                    # if we have a default, use that
+                    if sensor_device_class in cls._SENSOR_DEVICE_CLASS_DEFAULT_UNIT_OF_MEASUREMENT:
+                        return cls._SENSOR_DEVICE_CLASS_DEFAULT_UNIT_OF_MEASUREMENT[sensor_device_class]
+
+                    # we're out of ideas... return the first unit in the list
+                    # XXX could warn the user the choice is apparently random if units has more than one
+                    # XXX entry
+                    return next(iter(units))
+
+                # if we passed a unit, then check it's in the list
+                if unit in units:
+                    return unit
+                else:
+                    # XXX could warn the user their choice appears to be incorrect
+                    return unit
+
+        # we don't know what this is
+        return unit
+
+    @classmethod
+    def _make_sensor(cls, record: dict, sensor_device_class: SensorDeviceClass | str, unit_of_measurement: str | None = None) -> dict:
+        record["sensor_device_class"] = sensor_device_class
+        unit_of_measurement = cls._verify_unit(sensor_device_class, unit_of_measurement)
+        if unit_of_measurement is not None:
+            record["unit_of_measurement"] = unit_of_measurement
+        return record
+
+    @classmethod
+    def make_float_value(cls, name: str, value: float, precision: int) -> dict:
+        return {"name": name, "value": round(value, precision)}
+
+    @classmethod
+    def make_int_value(cls, name: str, value: float) -> dict:
+        return {"name": name, "value": value}
+
+    @classmethod
+    def make_float_sensor(cls, name: str, value: float, precision: int, sensor_device_class: SensorDeviceClass | str, unit_of_measurement: str | None = None) -> dict:
+        return cls._make_sensor(cls.make_float_value(name, value, precision), sensor_device_class, unit_of_measurement)
+
+    @classmethod
+    def make_int_sensor(cls, name: str, value: int, sensor_device_class: SensorDeviceClass | str, unit_of_measurement: str | None = None) -> dict:
+        return cls._make_sensor(cls.make_int_value(name, value), sensor_device_class, unit_of_measurement)
+
+    @classmethod
+    def make_group_sensor(cls, name: str, values: list[dict], sensor_device_class: SensorDeviceClass | str, unit_of_measurement: str | None = None) -> dict:
+        return cls._make_sensor({"name": name, "values": values}, sensor_device_class, unit_of_measurement)
 
 
-def _make_float_sensor(name: str, value: float, precision: int, sensor_device_class: SensorDeviceClass | str, unit: str | None = None) -> dict:
-    return {"name": name, "value": round(value, precision), "sensor_device_class": sensor_device_class, "unit": _check_type_unit(sensor_device_class, unit)}
+# utility functions to get info from the host
+def _get_lines_from_proc(proc: str) -> list[str]:
+    source = subprocess.run([proc], capture_output=True, text=True)
+    return [line for line in source.stdout.split('\n') if line]
 
 
-def _make_int_sensor(name: str, value: int, sensor_device_class: SensorDeviceClass | str, unit: str | None = None) -> dict:
-    return {"name": name, "value": value, "sensor_device_class": sensor_device_class, "unit": _check_type_unit(sensor_device_class, unit)}
+def _get_fields_from_proc(proc: str, line: int, delimiter: str | None = None) -> list[str]:
+    source = subprocess.run([proc], capture_output=True, text=True)
+    return [line for line in source.stdout.split('\n') if line][line].split(delimiter)
 
 
-class _SensorGroup:
-    def __init__(self, name: str, sensor_device_class: SensorDeviceClass | str, unit: str | None = None):
-        self.name = name
-        self.sensor_device_class = sensor_device_class
-        self.unit = _check_type_unit(sensor_device_class, unit)
-        self.sensors = []
-
-    def add_float_sensor(self, name: str, value: float, precision: int) -> _SensorGroup:
-        self.sensors.append({"name": name, "value": round(value, precision)})
-        return self
-
-    def add_int_sensor(self, name: str, value: int) -> _SensorGroup:
-        self.sensors.append({"name": name, "value": value})
-        return self
-
-    def finish(self) -> dict:
-        return {"name": self.name, "sensors": self.sensors, "sensor_device_class": self.sensor_device_class, "unit": self.unit}
+def _get_field_from_proc(proc: str, line: int, field: int, delimiter: str | None = None) -> float:
+    source = subprocess.run([proc], capture_output=True, text=True)
+    return float([line for line in source.stdout.split('\n') if line][line].split(delimiter)[field])
 
 
-# utility functions to get infor from the host
-def _get_ip_address():
-    result = subprocess.run(['ip', '-o', '-4', 'addr', 'list'], capture_output=True, text=True)
-    for line in result.stdout.split('\n'):
+def _get_ip_address() -> str:
+    for line in _get_lines_from_proc("ip -o -4 addr list"):
         if 'eth0' in line or 'wlan0' in line:
             return line.split()[3].split('/')[0]
-    return ""
+    # if we didn't get anything else...
+    return socket.gethostbyname(socket.gethostname())
 
 
-def _get_os_description():
+def _get_os_description() -> str:
     result = subprocess.run(['lsb_release', '-a'], capture_output=True, text=True)
     for line in result.stdout.split('\n'):
         if 'Description' in line:
             return line.split(':')[1].strip()
-    return ""
+    # if we didn't get anything else
+    return "unknown"
 
 
-def _get_uptime():
-    with open('/proc/uptime', 'r') as f:
-        return _make_float_sensor('uptime', float(f.readline().split()[0]), 3, SensorDeviceClass.DURATION, UnitOfTime.SECONDS)
+class RpiSensorHost:
+    @classmethod
+    def uptime(cls):
+        uptime = _get_field_from_proc("cat /proc/uptime", 0, 0)
+        return RpiSensorBuilder.make_float_sensor("uptime", uptime, 2, SensorDeviceClass.DURATION)
+
+    @classmethod
+    def load(cls) -> dict:
+        load = 100.0 - _get_field_from_proc("mpstat", -1, -1)
+        return RpiSensorBuilder.make_float_sensor("cpu_load", load, 2, PERCENTAGE)
+
+    @classmethod
+    def temperature(cls) -> dict:
+        temperature = _get_field_from_proc("cat /sys/class/thermal/thermal_zone0/temp", 0, 0) / 1000.0
+        return RpiSensorBuilder.make_float_sensor("cpu_temperature", temperature, 3, SensorDeviceClass.TEMPERATURE)
+
+    @classmethod
+    def memory(cls):
+        fields = _get_fields_from_proc("free -bw", 1)
+        total = float(fields[1])
+        return RpiSensorBuilder.make_float_sensor("memory", (100.0 * (total - float(fields[-1]))) / total, 2, PERCENTAGE)
+
+    @classmethod
+    def swap(cls):
+        fields = _get_fields_from_proc("free -bw", 2)
+        return RpiSensorBuilder.make_float_sensor("swap", (100.0 * float(fields[2])) / float(fields[1]), 2, PERCENTAGE)
+
+    @classmethod
+    def disk(cls):
+        fields = _get_fields_from_proc("df --block-size=1K --output=size,used,avail /", 1)
+        return RpiSensorBuilder.make_float_sensor("disk", (100.0 * float(fields[1])) / float(fields[0]), 2, PERCENTAGE)
+
+    @classmethod
+    def report(cls) -> list[dict]:
+        return [cls.uptime(), cls.load(), cls.temperature(), cls.memory(), cls.swap(), cls.disk()]
 
 
-def _get_cpu_load():
-    result = subprocess.run(['mpstat'], capture_output=True, text=True)
-    lines = [line for line in result.stdout.split('\n') if line]
-    fields = lines[-1].split()
-    return _make_float_sensor("percent", 100.0 - float(fields[-1]), 2, PERCENTAGE)
-
-
-def _get_cpu_temperature():
-    with open('/sys/class/thermal/thermal_zone0/temp', 'r') as f:
-        temp = f.read().strip()
-        return _make_float_sensor("cpu_temperature", float(temp) / 1000.0, 3, SensorDeviceClass.TEMPERATURE, UnitOfTemperature.CELSIUS)
-
-
-def _get_memory():
-    result = subprocess.run(['free', '-bw'], capture_output=True, text=True)
-    lines = result.stdout.split('\n')
-    memory_line = lines[1]
-    fields = memory_line.split()
-    total = int(fields[2])
-    available = int(fields[-1])
-    return (_SensorGroup("memory", SensorDeviceClass.DATA_SIZE, UnitOfInformation.BYTES)
-            .add_int_sensor("total", total)
-            .add_int_sensor("used", int(fields[4]))
-            .add_int_sensor("free", int(fields[-1]))
-            .add_int_sensor("shared", int(fields[-1]))
-            .add_int_sensor("buffers", int(fields[-1]))
-            .add_int_sensor("cache", int(fields[-1]))
-            .add_int_sensor("available", available)
-            .add_float_sensor("percent", (100.0 * (total - available)) / total, 2)
-            .finish()
-            )
-
-
-def _get_swap():
-    result = subprocess.run(['free', '-bw'], capture_output=True, text=True)
-    lines = result.stdout.split('\n')
-    swap_line = lines[2]
-    fields = swap_line.split()
-    total = int(fields[1])
-    used = int(fields[2])
-    return (_SensorGroup("swap", SensorDeviceClass.DATA_SIZE, UnitOfInformation.BYTES)
-            .add_int_sensor("total", total)
-            .add_int_sensor("used", used)
-            .add_int_sensor("free", int(fields[3]))
-            .add_float_sensor("percent", (100.0 * used) / total, 2)
-            .finish()
-            )
-
-
-def _get_disk():
-    result = subprocess.run(['df', '--block-size=1K', '--output=size,used,avail', '/'], capture_output=True, text=True)
-    lines = result.stdout.split('\n')
-    disk_line = lines[1]
-    fields = disk_line.split()
-    total = int(fields[0])
-    used = int(fields[1])
-    return (_SensorGroup("disk", SensorDeviceClass.DATA_SIZE, UnitOfInformation.BYTES)
-            .add_int_sensor("total", total)
-            .add_int_sensor("used", used)
-            .add_int_sensor("free", int(fields[2]))
-            .add_float_sensor("percent", (100.0 * used) / total, 2)
-            .finish()
-            )
-
-
-class SensorLogger:
+class RpiSensorDevice:
     def __init__(self):
         self.sensor_dir = "/var/www/html/sensor"
-        with open(os.path.join(self.sensor_dir, "config.json"), 'r') as config_file:
-            self.config = json.load(config_file)
+        config_file = os.path.join(self.sensor_dir, "config.json")
+        if os.path.isfile(config_file):
+            with open(config_file, 'r') as config_file:
+                self.config = json.load(config_file)
         self.start_timestamp = int(time.time() * 1000)
         self.counter = 0
 
@@ -167,19 +173,16 @@ class SensorLogger:
         result = subprocess.run(['/home/brettonw/bin/sensor.py'], capture_output=True, text=True)
         return json.loads(result.stdout.strip())
 
-    def log_sensor_data(self):
-        timestamp = int(time.time() * 1000)
-        hostname = socket.gethostname()
-
+    def report(self):
         output = {
             "version": VERSION,
-            "timestamp": timestamp,
+            "timestamp": int(time.time() * 1000),
             "host": {
-                "name": hostname,
-                "ip": socket.gethostbyname(hostname),
+                "name": socket.gethostname(),
+                "ip": _get_ip_address(),
                 "os": _get_os_description()
             },
-            "sensors": [_get_uptime(), _get_cpu_load(), _get_cpu_temperature(), _get_memory(), _get_swap(), _get_disk()]
+            "sensors": RpiSensorHost.report()
         }
 
         # load the control states and append them (if any)
@@ -194,10 +197,9 @@ class SensorLogger:
         # if sensor_read:
         #     output["sensors"]["sensors"].append(sensor_read)
 
-        print (json.dumps(output))
-
+        print(json.dumps(output))
 
 
 if __name__ == "__main__":
-    sensor_logger = SensorLogger()
-    sensor_logger.log_sensor_data()
+    sensor_logger = RpiSensorDevice()
+    sensor_logger.report()
