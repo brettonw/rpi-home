@@ -88,6 +88,7 @@ class RpiSensorDevice:
         for sensor in sensors:
             # sensor has a name, a pip module dependency, and a python class to use as a driver - which should be a module installed using pip
             # XXX do I even need the name? what if I have a bunch of drivers that report the same name, like temperature?
+            _LOGGER.debug(f"reading sensor {sensor[NAME]}")
             cls = self.import_class_from_module(sensor[MODULE_NAME], sensor[CLASS_NAME])
             if cls is not None:
                 sensor_outputs = cls.report()

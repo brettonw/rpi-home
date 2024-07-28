@@ -2,7 +2,10 @@
 
 from rpi_sensor import RpiSensorDevice
 import json
+import logging
+
+logging.basicConfig(level=logging.DEBUG)
 
 if __name__ == "__main__":
-    sensor_logger = RpiSensorDevice()
-    print(json.dumps(sensor_logger.report()))
+    sensor_device = RpiSensorDevice()
+    print(json.dumps(sensor_device.report()))
