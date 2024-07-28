@@ -44,27 +44,9 @@ def _make_int_sensor(name: str, value: int, sensor_device_class: SensorDeviceCla
     return {"name": name, "value": value, "sensor_device_class": sensor_device_class, "unit": _check_type_unit(sensor_device_class, unit)}
 
 
-class _SensorGroup:
-    def __init__(self, name: str, sensor_device_class: SensorDeviceClass | str, unit: str | None = None):
-        self.name = name
-        self.sensor_device_class = sensor_device_class
-        self.unit = _check_type_unit(sensor_device_class, unit)
-        self.sensors = []
-
-    def add_float_sensor(self, name: str, value: float, precision: int) -> _SensorGroup:
-        self.sensors.append({"name": name, "value": round(value, precision)})
-        return self
-
-    def add_int_sensor(self, name: str, value: int) -> _SensorGroup:
-        self.sensors.append({"name": name, "value": value})
-        return self
-
-    def finish(self) -> dict:
-        return {"name": self.name, "sensors": self.sensors, "sensor_device_class": self.sensor_device_class, "unit": self.unit}
-
-
 # utility functions to get infor from the host
 def _get_ip_address():
+    source =
     result = subprocess.run(['ip', '-o', '-4', 'addr', 'list'], capture_output=True, text=True)
     for line in result.stdout.split('\n'):
         if 'eth0' in line or 'wlan0' in line:

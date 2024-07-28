@@ -101,7 +101,7 @@ def _get_field_from_proc(proc: str | list[str], line: int, field: int, delimiter
 
 
 def _get_ip_address() -> str:
-    for line in _get_lines_from_proc("ip -o -4 addr list"):
+    for line in _get_lines_from_proc(["ip", "-o", "-4", "addr", "list"]):
         if 'eth0' in line or 'wlan0' in line:
             return line.split()[3].split('/')[0]
     # if we didn't get anything else...
@@ -109,8 +109,7 @@ def _get_ip_address() -> str:
 
 
 def _get_os_description() -> str:
-    result = subprocess.run(['lsb_release', '-a'], capture_output=True, text=True)
-    for line in result.stdout.split('\n'):
+    for line in _get_lines_from_proc(["lsb_release", "-a"]):
         if 'Description' in line:
             return line.split(':')[1].strip()
     # if we didn't get anything else
