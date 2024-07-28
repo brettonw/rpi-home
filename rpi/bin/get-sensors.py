@@ -1,6 +1,6 @@
 #! /usr/local/rpi_home/python3/bin/python3
 
-from rpi_sensor import RpiSensorDevice
+from rpi_home import RpiSensorDevice
 import json
 import logging
 
