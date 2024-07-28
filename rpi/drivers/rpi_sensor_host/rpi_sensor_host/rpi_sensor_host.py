@@ -1,16 +1,14 @@
 from __future__ import annotations
 
 import inspect
-import logging
+from typing import Any
 
 from homeassistant.const import PERCENTAGE
 from homeassistant.components.sensor import SensorDeviceClass
 
-from .rpi_sensor import RpiSensor
-from .rpi_sensor_builder import RpiSensorBuilder
-from .utils import get_fields_from_proc, get_float_field_from_proc
-
-_LOGGER = logging.getLogger(__name__)
+from rpi_sensor.rpi_sensor import RpiSensor
+from rpi_sensor.rpi_sensor_builder import RpiSensorBuilder
+from rpi_sensor.utils import get_fields_from_proc, get_float_field_from_proc
 
 
 class RpiSensorHost(RpiSensor):
@@ -46,5 +44,5 @@ class RpiSensorHost(RpiSensor):
         return RpiSensorBuilder.make_float_sensor(inspect.currentframe().f_code.co_name, (100.0 * float(fields[1])) / float(fields[0]), 2, PERCENTAGE)
 
     @classmethod
-    def report(cls) -> list[dict]:
+    def report(cls) -> list[dict[str, Any]] | None:
         return [cls.uptime(), cls.cpu_usage(), cls.cpu_temperature(), cls.memory_usage(), cls.swap_usage(), cls.disk_usage()]

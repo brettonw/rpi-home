@@ -5,12 +5,13 @@ import subprocess
 import os
 import time
 import socket
+import importlib
 import logging
 
 from .version import RPI_HOME_VERSION
-from .const import RPI_SENSOR_DIR, NAME, VERSION, SENSORS, CONTROLS, TIMESTAMP, HOST, IP_ADDRESS, OPERATING_SYSTEM
+from .const import RPI_SENSOR_DIR, NAME, VERSION, SENSORS, CONTROLS, TIMESTAMP, HOST, IP_ADDRESS, OPERATING_SYSTEM, MODULE_NAME, CLASS_NAME
 from .utils import get_lines_from_proc, load_json_file, put_if_not_none
-from .rpi_sensor_host import RpiSensorHost
+from .rpi_sensor import RpiSensor
 
 _LOGGER = logging.getLogger(__name__)
 
@@ -43,7 +44,31 @@ class RpiSensorDevice:
         result = subprocess.run(['/home/brettonw/bin/sensor.py'], capture_output=True, text=True)
         return json.loads(result.stdout.strip())
 
+    @staticmethod
+    def import_class_from_module(module_name: str, class_name: str) -> RpiSensor | None:
+        # try to load the module
+        try:
+            module = importlib.import_module(module_name)
+        except ModuleNotFoundError:
+            _LOGGER.error(f"module ({module_name}) not found.")
+            return None
+
+        # try to get the requested class
+        try:
+            cls = getattr(module, class_name)
+        except AttributeError:
+            _LOGGER.error(f"class ({class_name}) not found in module '{module_name}'.")
+            return None
+
+        # ensure that the found attribute is a subclass of RpiSensor
+        if not isinstance(cls, RpiSensor):
+            print(f"class ({class_name}) in module ({module_name}) is not an RpiSensor subclass.")
+            return None
+
+        return cls
+
     def report(self) -> dict:
+        output_sensors = []
         output = {
             VERSION: RPI_HOME_VERSION,
             TIMESTAMP: int(time.time() * 1000),
@@ -52,15 +77,21 @@ class RpiSensorDevice:
                 IP_ADDRESS: _get_ip_address(),
                 OPERATING_SYSTEM: _get_os_description()
             },
-            SENSORS: RpiSensorHost.report()
+            SENSORS: output_sensors
         }
 
         # load the control states and include them (if any)
         put_if_not_none(output, CONTROLS, load_json_file(os.path.join(RPI_SENSOR_DIR, "controls.json")))
 
         # loop through the config to read each sensor
-        # sensor_read = self._read_sensor()
-        # if sensor_read:
-        #     output["sensors"]["sensors"].append(sensor_read)
+        sensors = self.config[SENSORS]
+        for sensor in sensors:
+            # sensor has a name, a pip module dependency, and a python class to use as a driver - which should be a module installed using pip
+            # XXX do I even need the name? what if I have a bunch of drivers that report the same name, like temperature?
+            cls = self.import_class_from_module(sensor[MODULE_NAME], sensor[CLASS_NAME])
+            if cls is not None:
+                sensor_outputs = cls.report()
+                if sensor_outputs is not None:
+                    output_sensors.extend(sensor_outputs)
 
         return output

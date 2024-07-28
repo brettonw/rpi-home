@@ -1,0 +1,1 @@
+DOMAIN = "rpi_sensor"

@@ -1,0 +1,5 @@
+{
+  "sensors": [
+    { "name": "host", "module_name": "rpi_sensor_host", "class_name": "RpiSensorHost" }
+  ]
+}
