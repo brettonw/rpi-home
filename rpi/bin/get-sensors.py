@@ -87,16 +87,9 @@ def _get_uptime():
 
 def _get_cpu_load():
     result = subprocess.run(['mpstat'], capture_output=True, text=True)
-    lines = result.stdout.split('\n')
-    last_line = lines[-2]
-    fields = last_line.split()
-    return (_SensorGroup("cpu_load", PERCENTAGE)
-            .add_float_sensor("usr", float(fields[2]), 2)
-            .add_float_sensor("sys", float(fields[4]), 2)
-            .add_float_sensor("idle", float(fields[-1]), 2)
-            .add_float_sensor("percent", 100.0 - float(fields[-1]), 2)
-            .finish()
-            )
+    lines = [line for line in result.stdout.split('\n') if line]
+    fields = lines[-1].split()
+    return _make_float_sensor("percent", 100.0 - float(fields[-1]), 2, PERCENTAGE)
 
 
 def _get_cpu_temperature():
