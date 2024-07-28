@@ -48,24 +48,24 @@ class RpiSensorDevice:
     def import_class_from_module(module_name: str, class_name: str) -> RpiSensor | None:
         # try to load the module
         try:
-            module = importlib.import_module(module_name)
+            imported_module = importlib.import_module(module_name)
         except ModuleNotFoundError:
             _LOGGER.error(f"module ({module_name}) not found.")
             return None
 
         # try to get the requested class
         try:
-            cls = getattr(module, class_name)
+            imported_class = getattr(imported_module, class_name)
         except AttributeError:
             _LOGGER.error(f"class ({class_name}) not found in module '{module_name}'.")
             return None
 
         # ensure that the found attribute is a subclass of RpiSensor
-        if not isinstance(cls, RpiSensor):
+        if not issubclass(imported_class, RpiSensor):
             print(f"class ({class_name}) in module ({module_name}) is not an RpiSensor subclass.")
             return None
 
-        return cls
+        return imported_class
 
     def report(self) -> dict:
         output_sensors = []
@@ -88,7 +88,7 @@ class RpiSensorDevice:
         for sensor in sensors:
             # sensor has a name, a pip module dependency, and a python class to use as a driver - which should be a module installed using pip
             # XXX do I even need the name? what if I have a bunch of drivers that report the same name, like temperature?
-            _LOGGER.debug(f"reading sensor {sensor[NAME]}")
+            _LOGGER.debug(f"reading sensor ({sensor[NAME]})")
             cls = self.import_class_from_module(sensor[MODULE_NAME], sensor[CLASS_NAME])
             if cls is not None:
                 sensor_outputs = cls.report()
