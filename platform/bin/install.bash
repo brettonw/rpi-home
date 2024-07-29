@@ -30,6 +30,11 @@ fi;
 sudo ln -s "$rpi_root_dir/platform/www" "$rpi_home_www_dir";
 echo "Linked rpi_home dir ($rpi_home_www_dir).";
 
+# drop the system report in the sensor directory
+sudo lshw > "$rpi_home_www_dir/lshw.txt";
+"$executing_dir/lshw-json.py" "$rpi_home_www_dir/lshw.txt" "$rpi_home_www_dir/lshw.json";
+
+
 # install (upgrade) the rpi_home module
 $rpi_root_dir/python3/bin/pip3 install --upgrade "$rpi_root_dir/pip/rpi_home";
 
