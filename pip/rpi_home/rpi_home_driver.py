@@ -49,7 +49,7 @@ def _install_driver(driver: str, class_name: str, required_type: Type[EntityType
 
     # ensure that the found attribute is a subclass of the required type
     if not issubclass(imported_class, required_type):
-        print(f"class ({class_name}) in module ({driver}) is not a subclass of {required_type}")
+        _LOGGER.error(f"class ({class_name}) in module ({driver}) is not a subclass of {required_type}")
         return None
 
     return imported_class

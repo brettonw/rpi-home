@@ -1,7 +1,7 @@
 #! /usr/local/rpi_home/python3/bin/python3
 
 import socket
-import time
+
 
 def send_broadcast_and_listen():
     # Set up the broadcast socket
@@ -27,6 +27,7 @@ def send_broadcast_and_listen():
             break
     except socket.timeout:
         print("No response received within the timeout period.")
+
 
 if __name__ == "__main__":
     send_broadcast_and_listen()
