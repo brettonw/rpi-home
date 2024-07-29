@@ -3,7 +3,7 @@ Description=RPI Home Discovery Listener Service
 After=network.target
 
 [Service]
-ExecStart=/usr/local/rpi_home/rpi/bin/discovery_listener.py
+ExecStart=/usr/local/rpi_home/rpi/discovery/discovery_listener.py
 StandardOutput=inherit
 StandardError=inherit
 Restart=always
