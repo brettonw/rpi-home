@@ -3,11 +3,11 @@ from __future__ import annotations
 import os
 import socket
 import logging
-from typing import Any, cast
+from typing import Any
 
 from .version import RPI_HOME_VERSION
 from .const import RPI_HOME_ROOT_DIR, NAME, VERSION, SENSORS, CONTROLS, SETTINGS, TIMESTAMP, HOST, \
-    IP_ADDRESS, OPERATING_SYSTEM, CACHE
+    IP_ADDRESS, OPERATING_SYSTEM
 from .utils import get_lines_from_proc, load_json_file, timestamp
 from .rpi_home_driver import RpiHomeSensorDriver, RpiHomeControlDriver
 
@@ -51,14 +51,14 @@ class RpiHomeDevice:
         for sensor in self._config[SENSORS]:
             driver = RpiHomeSensorDriver(sensor)
             if driver.is_valid:
-                self._sensors.append (driver)
+                self._sensors.append(driver)
 
         # run through the config and cache the control drivers
         self._controls: list[RpiHomeControlDriver] = []
         for control in self._config[CONTROLS]:
             driver = RpiHomeControlDriver(control)
             if driver.is_valid:
-                self._controls.append (driver)
+                self._controls.append(driver)
 
     @property
     def settings(self) -> dict[str, Any]:
