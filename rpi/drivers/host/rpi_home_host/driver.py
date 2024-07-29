@@ -7,6 +7,7 @@ from homeassistant.const import PERCENTAGE
 from homeassistant.components.sensor import SensorDeviceClass
 
 from rpi_home import RpiSensor, RpiSensorBuilder, get_fields_from_proc, get_float_field_from_proc
+from .version import DRIVER_VERSION
 
 
 class Driver(RpiSensor):
@@ -44,3 +45,7 @@ class Driver(RpiSensor):
     @classmethod
     def report(cls) -> list[dict[str, Any]] | None:
         return [cls.uptime(), cls.cpu_usage(), cls.cpu_temperature(), cls.memory_usage(), cls.swap_usage(), cls.disk_usage()]
+
+    @classmethod
+    def version(cls) -> str:
+        return DRIVER_VERSION

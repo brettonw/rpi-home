@@ -7,3 +7,8 @@ class RpiControl(ABC):
     @abstractmethod
     def perform(cls, data: dict[str, Any]) -> bool:
         pass
+
+    @classmethod
+    @abstractmethod
+    def version(cls) -> str:
+        pass

@@ -7,3 +7,8 @@ class RpiSensor(ABC):
     @abstractmethod
     def report(cls) -> list[dict[str, Any]] | None:
         pass
+
+    @classmethod
+    @abstractmethod
+    def version(cls) -> str:
+        pass
