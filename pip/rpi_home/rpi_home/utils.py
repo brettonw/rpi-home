@@ -1,7 +1,9 @@
 import subprocess
 import os
 import json
+from time import time
 from typing import Any
+
 
 def get_lines_from_proc(proc: str | list[str]) -> list[str]:
     source = subprocess.run([proc] if isinstance(proc, str) else proc, capture_output=True, text=True)
@@ -27,3 +29,7 @@ def put_if_not_none(record: dict[str, Any], name: str, value: Any | None) -> Any
     if value is not None:
         record[name] = value
     return value
+
+
+def timestamp() -> int:
+    return int(time() * 1000)

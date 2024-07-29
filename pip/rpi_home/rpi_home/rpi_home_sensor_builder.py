@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 import logging
+from typing import Any
 
 from homeassistant.const import UnitOfTime, UnitOfTemperature, UnitOfInformation
 from homeassistant.components.sensor import SensorDeviceClass, DEVICE_CLASS_UNITS
@@ -11,7 +12,7 @@ from .utils import put_if_not_none
 _LOGGER = logging.getLogger(__name__)
 
 
-class RpiSensorBuilder:
+class RpiHomeSensorBuilder:
     _SENSOR_DEVICE_CLASS_DEFAULT_UNIT_OF_MEASUREMENT = {
         SensorDeviceClass.DURATION: UnitOfTime.SECONDS,
         SensorDeviceClass.TEMPERATURE: UnitOfTemperature.CELSIUS,
@@ -72,5 +73,5 @@ class RpiSensorBuilder:
         return cls._make_sensor(cls.make_int_value(name, value), sensor_device_class, unit_of_measurement)
 
     @classmethod
-    def make_group_sensor(cls, name: str, values: list[dict], sensor_device_class: SensorDeviceClass | str, unit_of_measurement: str | None = None) -> dict:
+    def make_group_sensor(cls, name: str, values: list[dict[str, Any]], sensor_device_class: SensorDeviceClass | str, unit_of_measurement: str | None = None) -> dict:
         return cls._make_sensor({NAME: name, VALUES: values}, sensor_device_class, unit_of_measurement)

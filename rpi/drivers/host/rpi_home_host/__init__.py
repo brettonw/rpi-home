@@ -1,2 +1,2 @@
-from .driver import Driver
-__all__ = ["Driver"]
+from .sensor import Sensor
+__all__ = ["Sensor"]
