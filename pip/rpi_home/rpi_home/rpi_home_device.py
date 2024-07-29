@@ -76,6 +76,10 @@ class RpiHomeDevice:
     def version(self) -> str:
         return RPI_HOME_VERSION
 
+    @property
+    def sampling_interval(self) -> float:
+        return float(self.settings["sampling_interval"])
+
     def report(self) -> dict:
         output_sensors = []
         output = {

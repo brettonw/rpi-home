@@ -11,7 +11,9 @@ requires-python = ">=3.7"
 license = {file = "license.txt"}
 authors = [ {name = "Bretton Wade", email = "bretton.wade@irdev.us" } ]
 maintainers = [ {name = "Bretton Wade", email = "bretton.wade@irdev.us" } ]
-dependencies = ["homeassistant", "rpi_home", "toml"]
+
+# these dependencies were installed with rpi_home, we shouldn't need them here
+#dependencies = ["homeassistant", "rpi_home", "toml"]
 
 [project.urls]
 #"Homepage" = "https://github.com/pypa/sampleproject"

@@ -1,6 +1,6 @@
 {
   "settings": {
-    "polling_interval": 10,
+    "sampling_interval": 10,
     "mqtt": {
       "broker": "mosquitto",
       "username": "hass",

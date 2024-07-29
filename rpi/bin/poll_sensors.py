@@ -5,27 +5,28 @@ import logging
 import os
 import time
 
-from rpi_home import RpiSensorDevice, RPI_HOME_DIR
+from rpi_home import RpiHomeDevice, timestamp, RPI_HOME_WWW_DIR
 
 _LOGGER = logging.getLogger(__name__)
 
 
-class SensorService:
+class RpiHomeSamplingService:
     def __init__(self):
-        self.rpi_sensor_device = RpiSensorDevice()
-        self.start_timestamp = int(time.time() * 1000)
+        self.rpi_home_device = RpiHomeDevice()
+        self.sampling_interval_ms = int(self.rpi_home_device.sampling_interval * 1000)
+        self.start_timestamp = timestamp()
         self.counter = 0
 
-    def poll(self):
-        now_file = os.path.join(RPI_HOME_DIR, "nowx.json")
-        with open(now_file, 'w') as f:
-            json.dump(self.rpi_sensor_device.report(), f)
+    def take_sample(self):
+        print(json.dumps(self.rpi_home_device.report()))
+
+        # now_file = os.path.join(RPI_HOME_WWW_DIR, "nowx.json")
+        # with open(now_file, 'w') as f:
+        #     json.dump(self.rpi_home_device.report(), f)
 
         self.counter += 1
-        config = self.rpi_sensor_device.config
-        interval = int(config["settings"]["polling_interval"]) * 1000
-        target_timestamp = self.start_timestamp + (self.counter * interval)
-        now_timestamp = int(time.time() * 1000)
+        target_timestamp = self.start_timestamp + (self.counter * self.sampling_interval_ms)
+        now_timestamp = timestamp()
         delta = (target_timestamp - now_timestamp) / 1000
         if delta > 0:
             time.sleep(delta)
@@ -34,7 +35,6 @@ class SensorService:
 
 
 if __name__ == "__main__":
-    sensor_logger = SensorService()
-    # while True:
-    #     sensor_logger.log_sensor_data()
-    sensor_logger.poll()
+    sampling_service = RpiHomeSamplingService()
+    while True:
+        sampling_service.take_sample()
