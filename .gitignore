@@ -167,4 +167,6 @@ cython_debug/
 # Intellij
 .idea
 
+# files that are normally created as part of the operation
 /python3
+config.json

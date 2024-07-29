@@ -1,18 +1,18 @@
 from __future__ import annotations
 
-import json
-import subprocess
 import os
 import time
 import socket
-import importlib
 import logging
 from typing import Any
 
+
 from .version import RPI_HOME_VERSION
-from .const import RPI_HOME_DIR, NAME, VERSION, SENSORS, CONTROLS, TIMESTAMP, HOST, IP_ADDRESS, OPERATING_SYSTEM, MODULE_NAME, CLASS_NAME
+from .const import RPI_HOME_ROOT_DIR, RPI_HOME_WWW_DIR, NAME, VERSION, SENSORS, CONTROLS, TIMESTAMP, HOST, IP_ADDRESS, \
+    OPERATING_SYSTEM, DRIVER, CLASS_NAME, DRIVER_DEFAULT_CLASS_NAME
 from .utils import get_lines_from_proc, load_json_file, put_if_not_none
 from .rpi_sensor import RpiSensor
+from .driver import install_driver
 
 _LOGGER = logging.getLogger(__name__)
 
@@ -35,41 +35,38 @@ def _get_os_description() -> str:
 
 class RpiSensorDevice:
     def __init__(self):
-        config_file = os.path.join(RPI_HOME_DIR, "config.json")
-        if os.path.isfile(config_file):
-            with open(config_file, 'r') as config_file:
-                self.config = json.load(config_file)
+        # set up the driver cache
+        self.driver_cache: dict[str, RpiSensor] = {}
+
+        # load the config
+        config_file = os.path.join(RPI_HOME_ROOT_DIR, "config.json")
+        self._config = load_json_file(config_file)
+        assert self.config is not None
+
+        # run through the config and try to install each module, then cache the driver
+        sensors = self._config[SENSORS]
+        for sensor in sensors:
+            # sensor has a driver (a pip module dependency), and an optional "class_name" with a default of "Driver"
+            driver = sensor[DRIVER]
+            class_name = self.driver_class_name(sensor)
+            cache_name = self.driver_cache_name(driver, class_name)
+            put_if_not_none(self.driver_cache, cache_name, install_driver(driver, class_name))
+
+    @staticmethod
+    def driver_class_name(sensor: dict[str, Any]) -> str:
+        return sensor.get(CLASS_NAME, DRIVER_DEFAULT_CLASS_NAME)
+
+    @staticmethod
+    def driver_cache_name(driver: str, class_name: str) -> str:
+        return driver + "-" + class_name
 
     @property
     def config(self) -> dict[str, Any]:
-        return self.config
+        return self._config
 
-    @staticmethod
-    def import_class_from_module(module_name: str, class_name: str) -> RpiSensor | None:
-        # condition the module name to start with "rpi_home_"
-        if not module_name.startswith("rpi_home_"):
-            module_name = "rpi_home_" + module_name
-
-        # try to load the module
-        try:
-            imported_module = importlib.import_module(module_name)
-        except ModuleNotFoundError:
-            _LOGGER.error(f"module ({module_name}) not found.")
-            return None
-
-        # try to get the requested class
-        try:
-            imported_class = getattr(imported_module, class_name)
-        except AttributeError:
-            _LOGGER.error(f"class ({class_name}) not found in module '{module_name}'.")
-            return None
-
-        # ensure that the found attribute is a subclass of RpiSensor
-        if not issubclass(imported_class, RpiSensor):
-            print(f"class ({class_name}) in module ({module_name}) is not an RpiSensor subclass.")
-            return None
-
-        return imported_class
+    @property
+    def version(self) -> str:
+        return RPI_HOME_VERSION
 
     def report(self) -> dict:
         output_sensors = []
@@ -85,17 +82,17 @@ class RpiSensorDevice:
         }
 
         # load the control states and include them (if any)
-        put_if_not_none(output, CONTROLS, load_json_file(os.path.join(RPI_HOME_DIR, "controls.json")))
+        put_if_not_none(output, CONTROLS, load_json_file(os.path.join(RPI_HOME_WWW_DIR, "controls.json")))
 
         # loop through the config to read each sensor
-        sensors = self.config[SENSORS]
+        sensors = self._config[SENSORS]
         for sensor in sensors:
-            # sensor has a name, a pip module dependency, and a python class to use as a driver - which should be a module installed using pip
-            # XXX do I even need the name? what if I have a bunch of drivers that report the same name, like temperature?
-            _LOGGER.debug(f"reading sensor ({sensor[NAME]})")
-            cls = self.import_class_from_module(sensor[MODULE_NAME], sensor.get(CLASS_NAME, "Driver"))
-            if cls is not None:
-                sensor_outputs = cls.report()
+            # find the driver in the cache
+            driver = sensor[DRIVER]
+            _LOGGER.debug(f"reading from driver ({driver})")
+            cache_name = self.driver_cache_name(driver, self.driver_class_name(sensor))
+            if cache_name in self.driver_cache:
+                sensor_outputs = self.driver_cache[cache_name].report()
                 if sensor_outputs is not None:
                     output_sensors.extend(sensor_outputs)
 
