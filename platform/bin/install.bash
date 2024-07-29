@@ -36,7 +36,7 @@ sudo lshw > "$rpi_home_www_dir/lshw.txt";
 rm -f "$rpi_home_www_dir/lshw.txt";
 
 # install (upgrade) the rpi_home module
-$rpi_root_dir/python3/bin/pip3 install --upgrade "$rpi_root_dir/pip/rpi_home";
+$rpi_root_dir/python3/bin/pip3 install --upgrade "$rpi_root_dir/pip/";
 
 # install the discovery listener service
 $rpi_root_dir/platform/services/discovery/install.bash;
