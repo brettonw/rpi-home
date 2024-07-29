@@ -46,27 +46,31 @@ class RpiHomeDevice:
         self.ip_address = self._get_ip_address()
         self.os_description = self._get_os_description()
 
-        # run through the config and try to cache the drivers
-        for sensor in self.sensors:
+        # run through the config and cache the sensor drivers
+        self._sensors: list[RpiHomeSensorDriver] = []
+        for sensor in self._config[SENSORS]:
             driver = RpiHomeSensorDriver(sensor)
             if driver.is_valid:
-                sensor[CACHE] = driver
-        for control in self.controls:
+                self._sensors.append (driver)
+
+        # run through the config and cache the control drivers
+        self._controls: list[RpiHomeControlDriver] = []
+        for control in self._config[CONTROLS]:
             driver = RpiHomeControlDriver(control)
             if driver.is_valid:
-                control[CACHE] = driver
+                self._controls.append (driver)
 
     @property
     def settings(self) -> dict[str, Any]:
         return self._config[SETTINGS]
 
     @property
-    def controls(self) -> list[dict[str, Any]]:
-        return self._config[CONTROLS]
+    def sensors(self) -> list[RpiHomeSensorDriver]:
+        return self._sensors
 
     @property
-    def sensors(self) -> list[dict[str, Any]]:
-        return self._config[SENSORS]
+    def controls(self) -> list[RpiHomeControlDriver]:
+        return self._controls
 
     @property
     def version(self) -> str:
@@ -90,11 +94,9 @@ class RpiHomeDevice:
 
         # loop through the config to read each sensor
         for sensor in self.sensors:
-            if CACHE in sensor:
-                driver = cast(sensor[CACHE], RpiHomeSensorDriver)
-                _LOGGER.debug(f"reading from driver ({driver.cache_name})")
-                sensor_outputs = driver.report()
-                if sensor_outputs is not None:
-                    output_sensors.extend(sensor_outputs)
+            _LOGGER.debug(f"reading from driver ({sensor.cache_name})")
+            sensor_report = sensor.report()
+            if sensor_report is not None:
+                output_sensors.extend(sensor_report)
 
         return output

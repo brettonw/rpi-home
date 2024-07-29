@@ -9,5 +9,6 @@
   },
   "sensors": [
     { "driver": "host" }
-  ]
+  ],
+  "controls": []
 }
