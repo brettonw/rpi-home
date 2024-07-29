@@ -1,4 +1,4 @@
-RPI_SENSOR_DIR = "/var/www/html/sensor"
+RPI_HOME_DIR = "/var/www/html/rpi_home"
 
 # commonly used values
 TIMESTAMP = "timestamp"

@@ -1,4 +1,12 @@
 {
+  "settings": {
+    "polling_interval": 10
+    "mqtt": {
+      "broker": "mosquitto",
+      "username": "hass",
+      "password": "1234"
+    }
+  },
   "sensors": [
     { "name": "host", "module_name": "rpi_sensor_host", "class_name": "RpiSensorHost" }
   ]

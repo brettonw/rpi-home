@@ -16,5 +16,5 @@ setup(
     name="rpi_home_" + module_name,
     version=get_version(),
     packages=find_packages(),
-    install_requires=["homeassistant", "rpi_home"]
+    install_requires=["homeassistant", "rpi_home", "adafruit-circuitpython-si7021"]
 )

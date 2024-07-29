@@ -1,0 +1,14 @@
+[Unit]
+Description=RPI Home Discovery Listener Service
+After=network.target
+
+[Service]
+ExecStart=/usr/local/rpi_home/rpi/bin/discovery_listener.py
+StandardOutput=inherit
+StandardError=inherit
+Restart=always
+User=brettonw
+Type=simple
+
+[Install]
+WantedBy=multi-user.target

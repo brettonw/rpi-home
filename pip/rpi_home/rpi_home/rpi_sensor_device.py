@@ -7,9 +7,10 @@ import time
 import socket
 import importlib
 import logging
+from typing import Any
 
 from .version import RPI_HOME_VERSION
-from .const import RPI_SENSOR_DIR, NAME, VERSION, SENSORS, CONTROLS, TIMESTAMP, HOST, IP_ADDRESS, OPERATING_SYSTEM, MODULE_NAME, CLASS_NAME
+from .const import RPI_HOME_DIR, NAME, VERSION, SENSORS, CONTROLS, TIMESTAMP, HOST, IP_ADDRESS, OPERATING_SYSTEM, MODULE_NAME, CLASS_NAME
 from .utils import get_lines_from_proc, load_json_file, put_if_not_none
 from .rpi_sensor import RpiSensor
 
@@ -34,15 +35,14 @@ def _get_os_description() -> str:
 
 class RpiSensorDevice:
     def __init__(self):
-        config_file = os.path.join(RPI_SENSOR_DIR, "config.json")
+        config_file = os.path.join(RPI_HOME_DIR, "config.json")
         if os.path.isfile(config_file):
             with open(config_file, 'r') as config_file:
                 self.config = json.load(config_file)
 
-    @staticmethod
-    def _read_sensor():
-        result = subprocess.run(['/home/brettonw/bin/sensor.py'], capture_output=True, text=True)
-        return json.loads(result.stdout.strip())
+    @property
+    def config(self) -> dict[str, Any]:
+        return self.config
 
     @staticmethod
     def import_class_from_module(module_name: str, class_name: str) -> RpiSensor | None:
@@ -85,7 +85,7 @@ class RpiSensorDevice:
         }
 
         # load the control states and include them (if any)
-        put_if_not_none(output, CONTROLS, load_json_file(os.path.join(RPI_SENSOR_DIR, "controls.json")))
+        put_if_not_none(output, CONTROLS, load_json_file(os.path.join(RPI_HOME_DIR, "controls.json")))
 
         # loop through the config to read each sensor
         sensors = self.config[SENSORS]
