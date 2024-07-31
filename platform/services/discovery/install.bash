@@ -3,7 +3,7 @@
 # get the path where we are executing from
 executing_dir="$( cd "$( dirname "${BASH_SOURCE[0]}" )" &> /dev/null && pwd )"
 
-service_name="discovery_listener.service";
+service_name="discovery_registration.service";
 
 # stop the service if it is already installed
 if [ -f "/lib/systemd/system/$service_name" ]; then

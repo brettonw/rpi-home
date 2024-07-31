@@ -6,8 +6,7 @@ import logging
 from typing import Any
 
 from .version import RPI_HOME_VERSION
-from .const import RPI_HOME_ROOT_DIR, NAME, VERSION, SENSORS, CONTROLS, SETTINGS, TIMESTAMP, HOST, \
-    IP_ADDRESS, OPERATING_SYSTEM
+from .const import RPI_HOME_ROOT_DIR, NAME, VERSION, SENSORS, CONTROLS, SETTINGS, TIMESTAMP, HOST, IP_ADDRESS, OPERATING_SYSTEM
 from .utils import get_lines_from_proc, load_json_file, timestamp
 from .rpi_home_driver import RpiHomeSensorDriver, RpiHomeControlDriver
 
