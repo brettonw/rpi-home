@@ -7,21 +7,13 @@ from typing import Any
 
 from .version import RPI_HOME_VERSION
 from .const import RPI_HOME_ROOT_DIR, NAME, VERSION, SENSORS, CONTROLS, SETTINGS, TIMESTAMP, HOST, IP_ADDRESS, OPERATING_SYSTEM
-from .utils import get_lines_from_proc, load_json_file, timestamp
+from .utils import get_lines_from_proc, load_json_file, timestamp, get_ip_address
 from .rpi_home_driver import RpiHomeSensorDriver, RpiHomeControlDriver
 
 _LOGGER = logging.getLogger(__name__)
 
 
 class RpiHomeDevice:
-    @staticmethod
-    def _get_ip_address() -> str:
-        for line in get_lines_from_proc(["ip", "-o", "-4", "addr", "list"]):
-            if 'eth0' in line or 'wlan0' in line:
-                return line.split()[3].split("/")[0]
-        # if we didn't get anything else...
-        return socket.gethostbyname(socket.gethostname())
-
     @staticmethod
     def _get_os_description() -> str:
         for line in get_lines_from_proc(["lsb_release", "-a"]):
@@ -42,7 +34,7 @@ class RpiHomeDevice:
 
         # store off a few static values
         self.hostname = socket.gethostname()
-        self.ip_address = self._get_ip_address()
+        self.ip_address = get_ip_address()
         self.os_description = self._get_os_description()
 
         # run through the config and cache the sensor drivers

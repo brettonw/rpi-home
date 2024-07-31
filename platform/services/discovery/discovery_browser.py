@@ -1,69 +1,52 @@
 #!/usr/local/rpi_home/python3/bin/python3
 
-import argparse
+# this is really just a test program to debug zeroconf
+
 import logging
-from time import sleep
-from typing import cast
 
-from const import RPI_HOME, _RPI_HOME_SERVICE, _ZEROCONF
+from zeroconf import (Zeroconf, IPVersion, ServiceBrowser, ServiceListener)
+from const import RPI_HOME, _PATH_UTF8, _SVC_PROTOCOL_HTTP, _RPI_HOME_SERVICE, _ZEROCONF
 
-from zeroconf import (
-    IPVersion,
-    ServiceBrowser,
-    ServiceStateChange,
-    Zeroconf
-)
-
-_LOGGER = logging.getLogger(__name__)
-
-
-def on_service_state_change(zeroconf: Zeroconf, service_type: str, name: str, state_change: ServiceStateChange) -> None:
-    print(f"service {name} of type {service_type} state changed: {state_change}")
-
-    if state_change is ServiceStateChange.Added:
-        info = zeroconf.get_service_info(service_type, name)
-        print(f"info from zeroconf.get_service_info: {info:r}")
-
-        if info:
-            addresses = [
-                "%s:%d" % (addr, cast(int, info.port))
-                for addr in info.parsed_scoped_addresses()
-            ]
-            print("  addresses: %s" % ", ".join(addresses))
-            print("  weight: %d, priority: %d" % (info.weight, info.priority))
+class DiscoveryHandler(ServiceListener):
+    def _report(self, zc: Zeroconf, service_type: str, service_name: str):
+        info = zc.get_service_info(service_type, service_name)
+        if info is not None:
+            path = info.properties[_PATH_UTF8]
+            for key, value in info.properties.items():
+                #if key == info.properties.:
+                #    path = value.decode("utf-8")
+                print(f"    {str(key)}: {str(value)}")
+            print("  addresses: %s" % ", ".join([f"{addr}:{info.port}/{path}/" for addr in info.parsed_scoped_addresses()]))
             print(f"  server: {info.server}")
-            if info.properties:
-                print("  properties are:")
-                for key, value in info.properties.items():
-                    print(f"    {key!r}: {value!r}")
-            else:
-                print("  no properties")
         else:
             print("  no info")
         print("\n")
 
+    def add_service(self, zc: Zeroconf, service_type: str, service_name: str) -> None:
+        print(f"add_service ({service_type}, {service_name})")
+        if service_name == _RPI_HOME_SERVICE:
+            self._report(zc, service_type, service_name)
+
+    def update_service(self, zc: Zeroconf, service_type: str, service_name: str) -> None:
+        print(f"update_service ({service_type}, {service_name})")
+        if service_name == _RPI_HOME_SERVICE:
+            self._report(zc, service_type, service_name)
+
+    def remove_service(self, zc: Zeroconf, service_type: str, service_name: str) -> None:
+        print(f"remove_service ({service_type}, {service_name})")
+        if service_name == _RPI_HOME_SERVICE:
+            self._report(zc, service_type, service_name)
+
+    def browse(self):
+        print(f"\nbrowsing for {RPI_HOME} service, press Ctrl-C to exit...\n")
+        zc = Zeroconf(ip_version=IPVersion.V4Only)
+        logging.getLogger(_ZEROCONF).setLevel(logging.DEBUG)
+        ServiceBrowser(zc, _SVC_PROTOCOL_HTTP, DiscoveryHandler())
+        try:
+            input("Press enter to exit...\n\n")
+        finally:
+            zc.close()
+
 
 if __name__ == "__main__":
-    logging.basicConfig(level=logging.DEBUG)
-
-    parser = argparse.ArgumentParser()
-    parser.add_argument("--debug", action="store_true")
-    args = parser.parse_args()
-
-    if args.debug:
-        logging.getLogger(_ZEROCONF).setLevel(logging.DEBUG)
-
-    zeroconf = Zeroconf(ip_version=IPVersion.All)
-
-    services = [_RPI_HOME_SERVICE]
-
-    print(f"\nbrowsing for {RPI_HOME} service, press Ctrl-C to exit...\n")
-    browser = ServiceBrowser(zeroconf, services, handlers=[on_service_state_change])
-
-    try:
-        while True:
-            sleep(0.1)
-    except KeyboardInterrupt:
-        pass
-    finally:
-        zeroconf.close()
+    DiscoveryHandler().browse()

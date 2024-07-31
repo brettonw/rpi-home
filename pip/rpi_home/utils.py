@@ -1,6 +1,7 @@
 import subprocess
 import os
 import json
+import socket
 from time import time
 from typing import Any
 
@@ -33,3 +34,16 @@ def put_if_not_none(record: dict[str, Any], name: str, value: Any | None) -> Any
 
 def timestamp() -> int:
     return int(time() * 1000)
+
+
+def get_ip_address() -> str:
+    # try to get the name the quick way (on the local network)
+    try:
+        return socket.gethostbyname(socket.gethostname() + ".local")
+    except socket.error:
+        for line in get_lines_from_proc(["ip", "-o", "-4", "addr", "list"]):
+            if "eth0" in line or "wlan0" in line:
+                return line.split()[3].split("/")[0]
+
+    # if we didn't get anything else... (but this probably return 127.0.1.1)
+    return socket.gethostbyname(socket.gethostname())
