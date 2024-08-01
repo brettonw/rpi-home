@@ -23,9 +23,12 @@ fi;
 echo "LANG=C.UTF-8" | sudo tee "/etc/default/locale";
 
 # set up the target directory
-rpi_home_www_dir="/var/www/html/rpi_home";
+rpi_home_www_dir="/var/www/html";
 if [ -L "$rpi_home_www_dir" ]; then
   sudo rm -f "$rpi_home_www_dir";
+fi;
+if [ -d "$rpi_home_www_dir" ]; then
+  sudo mv "$rpi_home_www_dir" "$rpi_home_www_dir.old";
 fi;
 sudo ln -s "$rpi_root_dir/platform/www" "$rpi_home_www_dir";
 echo "Linked rpi_home dir ($rpi_home_www_dir).";

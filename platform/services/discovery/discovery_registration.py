@@ -12,21 +12,21 @@ _LOGGER = logging.getLogger(__name__)
 if __name__ == "__main__":
     logging.getLogger(_ZEROCONF).setLevel(logging.DEBUG)
 
-    info = ServiceInfo(
-        type_=_SVC_PROTOCOL_HTTP,
-        name=_RPI_HOME_SERVICE,
+    service_info = ServiceInfo(
+        type_=_RPI_HOME_SERVICE,  #_SVC_PROTOCOL_HTTP,
+        name="_RPI_HOME_SERVICE",
         addresses=[socket.inet_aton(get_ip_address())],
         port=_RPI_HOME_SERVICE_PORT,
-        properties={_PATH: RPI_HOME},
+        properties={},
         server=socket.gethostname()
     )
 
     zc = Zeroconf(ip_version=IPVersion.V4Only)
-    print(f"Registering {RPI_HOME} service, press Ctrl-C to exit...")
-    zc.register_service(info)
+    print(f"Registering {RPI_HOME} service on {service_info.server}")
+    zc.register_service(service_info)
     try:
-        input("Press enter to exit...\n\n")
+        input("Press [enter] to stop...\n\n")
     finally:
         print("Unregistering...")
-        zc.unregister_service(info)
+        zc.unregister_service(service_info)
         zc.close()

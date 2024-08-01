@@ -2,6 +2,7 @@ import subprocess
 import os
 import json
 import socket
+import uuid
 from time import time
 from typing import Any
 
@@ -47,3 +48,7 @@ def get_ip_address() -> str:
 
     # if we didn't get anything else... (but this probably return 127.0.1.1)
     return socket.gethostbyname(socket.gethostname())
+
+def get_mac_address() -> str:
+    mac = uuid.UUID(int=uuid.getnode()).hex[-12:]
+    return ":".join([mac[e:e+2] for e in range(0, 12, 2)])

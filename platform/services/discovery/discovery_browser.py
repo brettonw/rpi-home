@@ -5,45 +5,54 @@
 import logging
 
 from zeroconf import (Zeroconf, IPVersion, ServiceBrowser, ServiceListener)
-from const import RPI_HOME, _PATH_UTF8, _SVC_PROTOCOL_HTTP, _RPI_HOME_SERVICE, _ZEROCONF
+from const import RPI_HOME, _SVC_PROTOCOL_HTTP, _RPI_HOME_SERVICE, _ZEROCONF
+
 
 class DiscoveryHandler(ServiceListener):
-    def _report(self, zc: Zeroconf, service_type: str, service_name: str):
-        info = zc.get_service_info(service_type, service_name)
+    @staticmethod
+    def _short_report(action: str, service_name: str):
+        print(f"{action} ({service_name[:-(len(_SVC_PROTOCOL_HTTP) + 1)]})")
+
+    @staticmethod
+    def _report(zc: Zeroconf, action: str, service_name: str):
+        DiscoveryHandler._short_report(action, service_name)
+        #if service_name == _RPI_HOME_SERVICE:
+        info = zc.get_service_info(_SVC_PROTOCOL_HTTP, service_name)
         if info is not None:
-            path = info.properties[_PATH_UTF8]
-            for key, value in info.properties.items():
-                #if key == info.properties.:
-                #    path = value.decode("utf-8")
-                print(f"    {str(key)}: {str(value)}")
-            print("  addresses: %s" % ", ".join([f"{addr}:{info.port}/{path}/" for addr in info.parsed_scoped_addresses()]))
-            print(f"  server: {info.server}")
+            addrs = info.parsed_scoped_addresses()
+            port = f":{info.port}" if int(info.port) != 80 else ""
+            print("  address" + ("es" if len(addrs) > 1 else "") + ": " + ", ".join([f"{addr}{port}" for addr in addrs]))
+            host: str = info.server[:-1] if info.server.endswith(".") else info.server
+            host = (host[:-6] if host.endswith(".local") else host).lower()
+            print(f"  host: {host}")
+            if (info.properties is not None) and (len(info.properties.keys()) > 0):
+                preface = "  properties:\n"
+                for key, value in info.properties.items():
+                    if value is not None:
+                        print(f"{preface}    {key.decode("utf-8")}: {value.decode("utf-8") if isinstance(value, bytes) else value}")
+                        preface = ""
         else:
             print("  no info")
-        print("\n")
+        print()
 
     def add_service(self, zc: Zeroconf, service_type: str, service_name: str) -> None:
-        print(f"add_service ({service_type}, {service_name})")
-        if service_name == _RPI_HOME_SERVICE:
-            self._report(zc, service_type, service_name)
+        self._report(zc, "add", service_name)
+        # if service_name == _RPI_HOME_SERVICE:
+        #    self._report(zc, service_type, service_name)
 
     def update_service(self, zc: Zeroconf, service_type: str, service_name: str) -> None:
-        print(f"update_service ({service_type}, {service_name})")
-        if service_name == _RPI_HOME_SERVICE:
-            self._report(zc, service_type, service_name)
+        self._short_report("update", service_name)
 
     def remove_service(self, zc: Zeroconf, service_type: str, service_name: str) -> None:
-        print(f"remove_service ({service_type}, {service_name})")
-        if service_name == _RPI_HOME_SERVICE:
-            self._report(zc, service_type, service_name)
+        self._short_report("remove", service_name)
 
     def browse(self):
-        print(f"\nbrowsing for {RPI_HOME} service, press Ctrl-C to exit...\n")
         zc = Zeroconf(ip_version=IPVersion.V4Only)
         logging.getLogger(_ZEROCONF).setLevel(logging.DEBUG)
-        ServiceBrowser(zc, _SVC_PROTOCOL_HTTP, DiscoveryHandler())
+        ServiceBrowser(zc, _RPI_HOME_SERVICE, self)
+        print(f"\nbrowsing for {_RPI_HOME_SERVICE} services")
         try:
-            input("Press enter to exit...\n\n")
+            input("  press [enter] to stop...\n\n")
         finally:
             zc.close()
 
