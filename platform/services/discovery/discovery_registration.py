@@ -14,7 +14,7 @@ if __name__ == "__main__":
 
     service_info = ServiceInfo(
         type_=_RPI_HOME_SERVICE,  #_SVC_PROTOCOL_HTTP,
-        name="_RPI_HOME_SERVICE",
+        name="_RPI_HOME_SERVICE." + _RPI_HOME_SERVICE,
         addresses=[socket.inet_aton(get_ip_address())],
         port=_RPI_HOME_SERVICE_PORT,
         properties={},
