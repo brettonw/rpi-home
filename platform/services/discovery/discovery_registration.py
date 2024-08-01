@@ -5,7 +5,7 @@ import socket
 
 from zeroconf import IPVersion, ServiceInfo, Zeroconf
 from rpi_home import get_ip_address
-from const import RPI_HOME, _RPI_HOME_SERVICE, _PATH, _RPI_HOME_SERVICE_PORT, _SVC_PROTOCOL_HTTP, _ZEROCONF
+from const import RPI_HOME, _SVC, _SVC_PROTOCOL_HTTP, _SVC_PROTOCOL_HTTP_PORT, _ZEROCONF
 
 _LOGGER = logging.getLogger(__name__)
 
@@ -13,11 +13,11 @@ if __name__ == "__main__":
     logging.getLogger(_ZEROCONF).setLevel(logging.DEBUG)
 
     service_info = ServiceInfo(
-        type_=_RPI_HOME_SERVICE,  #_SVC_PROTOCOL_HTTP,
-        name="_RPI_HOME_SERVICE." + _RPI_HOME_SERVICE,
+        type_=_SVC_PROTOCOL_HTTP,
+        name=f"{socket.gethostname()}.{_SVC_PROTOCOL_HTTP}",
         addresses=[socket.inet_aton(get_ip_address())],
-        port=_RPI_HOME_SERVICE_PORT,
-        properties={},
+        port=_SVC_PROTOCOL_HTTP_PORT,
+        properties={_SVC: RPI_HOME},
         server=socket.gethostname()
     )
 

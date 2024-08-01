@@ -5,7 +5,7 @@
 import logging
 
 from zeroconf import (Zeroconf, IPVersion, ServiceBrowser, ServiceListener)
-from const import RPI_HOME, _SVC_PROTOCOL_HTTP, _RPI_HOME_SERVICE, _ZEROCONF
+from const import _SVC_PROTOCOL_HTTP, _ZEROCONF
 
 
 class DiscoveryHandler(ServiceListener):
@@ -16,7 +16,6 @@ class DiscoveryHandler(ServiceListener):
     @staticmethod
     def _report(zc: Zeroconf, action: str, service_name: str):
         DiscoveryHandler._short_report(action, service_name)
-        #if service_name == _RPI_HOME_SERVICE:
         info = zc.get_service_info(_SVC_PROTOCOL_HTTP, service_name)
         if info is not None:
             addrs = info.parsed_scoped_addresses()
@@ -37,8 +36,6 @@ class DiscoveryHandler(ServiceListener):
 
     def add_service(self, zc: Zeroconf, service_type: str, service_name: str) -> None:
         self._report(zc, "add", service_name)
-        # if service_name == _RPI_HOME_SERVICE:
-        #    self._report(zc, service_type, service_name)
 
     def update_service(self, zc: Zeroconf, service_type: str, service_name: str) -> None:
         self._short_report("update", service_name)
@@ -49,8 +46,8 @@ class DiscoveryHandler(ServiceListener):
     def browse(self):
         zc = Zeroconf(ip_version=IPVersion.V4Only)
         logging.getLogger(_ZEROCONF).setLevel(logging.DEBUG)
-        ServiceBrowser(zc, _RPI_HOME_SERVICE, self)
-        print(f"\nbrowsing for {_RPI_HOME_SERVICE} services")
+        ServiceBrowser(zc, _SVC_PROTOCOL_HTTP, self)
+        print(f"\nbrowsing for {_SVC_PROTOCOL_HTTP} services")
         try:
             input("  press [enter] to stop...\n\n")
         finally:
