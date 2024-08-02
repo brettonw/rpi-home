@@ -11,12 +11,12 @@ from rpi_home import get_ip_address
 from const import RPI_HOME, _SVC, _SVC_PROTOCOL_HTTP, _SVC_PROTOCOL_HTTP_PORT
 
 # Configure logging
-logging.basicConfig(level=logging.DEBUG, format="%(asctime)s - %(name)s - %(levelname)s - %(message)s")
+logging.basicConfig(level=logging.INFO)
+#logging.basicConfig(level=logging.DEBUG, format="%(asctime)s - %(name)s - %(levelname)s - %(message)s")
 
 # Create a custom logger
 logger = logging.getLogger(__name__)
 logger.setLevel(logging.DEBUG)
-
 # logging.getLogger(_ZEROCONF).setLevel(logging.DEBUG)
 
 # set up the zeroconf
