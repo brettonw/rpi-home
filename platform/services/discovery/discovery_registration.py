@@ -14,7 +14,7 @@ logger = logging.getLogger(__name__)
 
 if __name__ == "__main__":
     #logging.getLogger(_ZEROCONF).setLevel(logging.DEBUG)
-    logger.setLevel(logging.DEBUG)
+    logger.setLevel(logging.INFO)
 
     # set up the zeroconf
     zc = Zeroconf(ip_version=IPVersion.V4Only)
@@ -31,7 +31,7 @@ if __name__ == "__main__":
     )
 
     def cleanup(message: str):
-        logger.info("Unregistering ({message})...")
+        logger.info(f"Unregistering ({message})...")
         zc.unregister_service(service_info)
         zc.close()
         sys.exit(0)
