@@ -64,7 +64,6 @@ def get_ip_address() -> str:
             logger.debug(f"got IP address ({ip_address}) from {line}")
             return ip_address
 
-
     # if we didn't get anything else... (but this probably returns 127.0.1.1)
     try:
         hostname = socket.gethostname()
@@ -77,6 +76,7 @@ def get_ip_address() -> str:
     # the absolute last fallback
     logger.debug(f"returning final fallback IP address ({ip_address})")
     return ip_address
+
 
 def get_mac_address() -> str:
     mac = uuid.UUID(int=uuid.getnode()).hex[-12:]
