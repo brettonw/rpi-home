@@ -7,8 +7,8 @@ import time
 import sys
 
 from zeroconf import IPVersion, ServiceInfo, Zeroconf
-from rpi_home import RPI_HOME, get_ip_address, get_serial_number, SERIAL_NUMBER, RPI_HOME_VERSION, VERSION
-from const import _SVC, _SVC_PROTOCOL_HTTP, _SVC_PROTOCOL_HTTP_PORT, ZEROCONF
+from rpi_home import RPI_HOME, get_ip_address, get_serial_number, SERIAL_NUMBER, RPI_HOME_VERSION
+from const import _SVC_PROTOCOL_HTTP, _SVC_PROTOCOL_HTTP_PORT, ZEROCONF
 
 # Configure logging
 logging.basicConfig(level=logging.INFO)
@@ -31,7 +31,7 @@ service_info = ServiceInfo(
     name=f"{hostname}.{_SVC_PROTOCOL_HTTP}",
     addresses=[socket.inet_aton(ip_address)],
     port=_SVC_PROTOCOL_HTTP_PORT,
-    properties={_SVC: RPI_HOME, VERSION: RPI_HOME_VERSION, SERIAL_NUMBER: serial_number},
+    properties={RPI_HOME: RPI_HOME_VERSION, SERIAL_NUMBER: serial_number},
     server=hostname
 )
 

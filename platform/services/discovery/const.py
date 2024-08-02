@@ -1,4 +1,3 @@
-_SVC = "svc"
 _SVC_NETWORK_LOCAL = "local."
 _SVC_TRANSPORT_TCP = f"_tcp.{_SVC_NETWORK_LOCAL}"
 _SVC_PROTOCOL_HTTP = f"_http.{_SVC_TRANSPORT_TCP}"

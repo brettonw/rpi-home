@@ -5,7 +5,7 @@
 import logging
 
 from zeroconf import (Zeroconf, IPVersion, ServiceBrowser, ServiceListener)
-from const import _SVC_PROTOCOL_HTTP, _ZEROCONF
+from const import _SVC_PROTOCOL_HTTP, ZEROCONF
 
 
 class DiscoveryHandler(ServiceListener):
@@ -18,18 +18,19 @@ class DiscoveryHandler(ServiceListener):
         DiscoveryHandler._short_report(action, service_name)
         info = zc.get_service_info(_SVC_PROTOCOL_HTTP, service_name)
         if info is not None:
-            addrs = info.parsed_scoped_addresses()
+            addresses = info.parsed_scoped_addresses()
             port = f":{info.port}" if int(info.port) != 80 else ""
-            print("  address" + ("es" if len(addrs) > 1 else "") + ": " + ", ".join([f"{addr}{port}" for addr in addrs]))
+            print("  address" + ("es" if len(addresses) > 1 else "") + ": " +
+                  ", ".join([f"{address}{port}" for address in addresses]))
             host: str = info.server[:-1] if info.server.endswith(".") else info.server
             host = (host[:-6] if host.endswith(".local") else host).lower()
             print(f"  host: {host}")
             if (info.properties is not None) and (len(info.properties.keys()) > 0):
-                preface = "  properties:\n"
+                preface = "  properties:\n    "
                 for key, value in info.properties.items():
                     if value is not None:
-                        print(f"{preface}    {key.decode("utf-8")}: {value.decode("utf-8") if isinstance(value, bytes) else value}")
-                        preface = ""
+                        print(f"{preface}{key.decode("utf-8")}: {value.decode("utf-8") if isinstance(value, bytes) else value}")
+                        preface = "    "
         else:
             print("  no info")
         print()
@@ -45,7 +46,7 @@ class DiscoveryHandler(ServiceListener):
 
     def browse(self):
         zc = Zeroconf(ip_version=IPVersion.V4Only)
-        logging.getLogger(_ZEROCONF).setLevel(logging.DEBUG)
+        logging.getLogger(ZEROCONF).setLevel(logging.DEBUG)
         ServiceBrowser(zc, _SVC_PROTOCOL_HTTP, self)
         print(f"\nbrowsing for {_SVC_PROTOCOL_HTTP} services")
         try:
@@ -54,5 +55,4 @@ class DiscoveryHandler(ServiceListener):
             zc.close()
 
 
-if __name__ == "__main__":
-    DiscoveryHandler().browse()
+DiscoveryHandler().browse()
