@@ -23,7 +23,7 @@ def _install_driver(driver: str, class_name: str, required_type: Type[EntityType
 
     # use pip to install or upgrade the module
     try:
-        # can we find the drivers path instead of hardcode it?
+        # XXX can we find the drivers path instead of hardcode it?
         module_path = os.path.join(RPI_HOME_ROOT_DIR, "platform", "drivers", driver)
         _LOGGER.debug(f"installing driver ({driver})")
         subprocess.check_call([sys.executable, "-m", "pip", "install", "--upgrade", module_path])
