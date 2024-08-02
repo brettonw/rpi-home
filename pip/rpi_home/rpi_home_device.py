@@ -30,7 +30,9 @@ class RpiHomeDevice:
         # load the config
         config_file = os.path.join(RPI_HOME_ROOT_DIR, "config.json")
         self._config = load_json_file(config_file)
-        assert self._config is not None
+        if self._config is None:
+            _LOGGER.warning(f"using default config. at a minimum, copy the example config")
+            self._config = {"settings": {"sampling_interval": 10}, "sensors": [{"driver": "host"}], "controls": []}
 
         # store off a few static values
         self._hostname = socket.gethostname()

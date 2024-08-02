@@ -14,16 +14,20 @@ _LOGGER = logging.getLogger(__name__)
 
 if __name__ == "__main__":
     logging.getLogger(_ZEROCONF).setLevel(logging.DEBUG)
+    _LOGGER.setLevel(logging.DEBUG)
 
     # set up the zeroconf
     zc = Zeroconf(ip_version=IPVersion.V4Only)
+    hostname = socket.gethostname()
+    ip_address = get_ip_address()
+
     service_info = ServiceInfo(
         type_=_SVC_PROTOCOL_HTTP,
-        name=f"{socket.gethostname()}.{_SVC_PROTOCOL_HTTP}",
-        addresses=[socket.inet_aton(get_ip_address())],
+        name=f"{hostname}.{_SVC_PROTOCOL_HTTP}",
+        addresses=[socket.inet_aton(ip_address)],
         port=_SVC_PROTOCOL_HTTP_PORT,
         properties={_SVC: RPI_HOME},
-        server=socket.gethostname()
+        server=hostname
     )
 
     def cleanup():
@@ -46,7 +50,7 @@ if __name__ == "__main__":
     signal.signal(signal.SIGTERM, handle_sigterm)
 
     # start the actual discovery registration
-    _LOGGER.info(f"Registering {RPI_HOME} service on {service_info.server}")
+    _LOGGER.info(f"Registering {RPI_HOME} service on {hostname} ({ip_address})")
     zc.register_service(service_info)
     try:
         while True:

@@ -8,4 +8,7 @@
   - server browses for new publications once every few minutes?
   - if haven't been polled by a server in some time, republish
   - use server hello to publish mqtt credentials?
-- include the mac address with the ip address?
+-  ~~include the mac address with the ip address?~~
+- update the mac address to be sure it matches the network interface in use (eth or wifi)
+- use some sort of detault config if no config is found?
+- 

@@ -4,6 +4,18 @@
 executing_dir="$( cd "$( dirname "${BASH_SOURCE[0]}" )" &> /dev/null && pwd )"
 rpi_root_dir=/usr/local/rpi_home;
 
+# install git
+sudo apt-get install -y git;
+
+# XXX update the config and cmdline
+# cgroup_enable=cpuset cgroup_memory=1 cgroup_enable=memory
+# headless, ethernet only
+#dtoverlay=disable-wifi
+#dtoverlay=disable-bt
+
+# echo > .hushlogin
+# install bashrc and .ssh
+
 # if the target is in the wrong place, move it
 # XXX can we do this?
 
