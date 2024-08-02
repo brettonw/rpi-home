@@ -53,6 +53,8 @@ def get_ip_address() -> str:
         if ip_address != "127.0.0.1":
             logger.debug(f"got IP address ({ip_address}) from `socket` as '{qualified_hostname}'")
             return ip_address
+        else:
+            logger.debug(f"got useless IP address ({ip_address}) from `socket` as '{qualified_hostname}'")
     except socket.error as exc:
         logger.warning(f"failed to get IP address from `socket`: {exc}")
 
@@ -61,7 +63,7 @@ def get_ip_address() -> str:
     for line in get_lines_from_proc(["ip", "-o", "-4", "addr", "list"]):
         if "eth0" in line or "wlan0" in line:
             ip_address = line.split()[3].split("/")[0]
-            logger.debug(f"got IP address ({ip_address}) from {line}")
+            logger.debug(f"got IP address ({ip_address}) from {line[:40]}...")
             return ip_address
 
     # if we didn't get anything else... (but this probably returns 127.0.1.1)
