@@ -16,8 +16,8 @@ logging.basicConfig(level=logging.INFO)
 
 # Create a custom logger
 logger = logging.getLogger(__name__)
-logger.setLevel(logging.DEBUG)
-logging.getLogger(RPI_HOME).setLevel(logging.DEBUG)
+# logger.setLevel(logging.DEBUG)
+# logging.getLogger(RPI_HOME).setLevel(logging.DEBUG)
 # logging.getLogger(ZEROCONF).setLevel(logging.DEBUG)
 
 # set up the zeroconf
