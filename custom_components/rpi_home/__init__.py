@@ -14,7 +14,7 @@ from homeassistant.helpers.update_coordinator import (
 
 from .const import DOMAIN
 
-_LOGGER = logging.getLogger(__name__)
+logger = logging.getLogger(__name__)
 
 
 async def async_setup_entry(hass, entry, async_add_entities):

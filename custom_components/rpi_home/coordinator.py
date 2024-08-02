@@ -14,7 +14,7 @@ from homeassistant.helpers.update_coordinator import (
 
 from .const import DOMAIN
 
-_LOGGER = logging.getLogger(__name__)
+logger = logging.getLogger(__name__)
 
 
 class MyCoordinator(DataUpdateCoordinator):
@@ -24,7 +24,7 @@ class MyCoordinator(DataUpdateCoordinator):
         """Initialize my coordinator."""
         super().__init__(
             hass,
-            _LOGGER,
+            logger,
             # Name of the data. For logging purposes.
             name="My sensor",
             # Polling interval. Will only be polled if there are subscribers.

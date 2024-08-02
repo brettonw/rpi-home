@@ -7,7 +7,7 @@ from .rpi_home_device import RpiHomeDevice
 from .utils import timestamp
 from .const import RPI_HOME_WWW_DIR
 
-_LOGGER = logging.getLogger(__name__)
+logger = logging.getLogger(__name__)
 
 
 class RpiHomeSampler:
@@ -36,7 +36,7 @@ class RpiHomeSampler:
         if delta > 0:
             time.sleep(delta)
         else:
-            _LOGGER.warning(f"not sleeping (behind target by {delta * 1000} ms)")
+            logger.warning(f"not sleeping (behind target by {delta * 1000} ms)")
 
     def run(self):
         while True:

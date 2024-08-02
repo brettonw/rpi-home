@@ -8,7 +8,7 @@ from typing import Any, Type, TypeVar
 from .const import (RPI_HOME_ROOT_DIR, DRIVER_PREFIX, DRIVER, CLASS_NAME)
 from .rpi_home_entity import RpiHomeEntity, RpiHomeSensor, RpiHomeControl
 
-_LOGGER = logging.getLogger(__name__)
+logger = logging.getLogger(__name__)
 
 
 # Define a type variable constrained to RpiEntity or its subclasses
@@ -25,11 +25,11 @@ def _install_driver(driver: str, class_name: str, required_type: Type[EntityType
     try:
         # XXX can we find the drivers path instead of hardcode it?
         module_path = os.path.join(RPI_HOME_ROOT_DIR, "platform", "drivers", driver)
-        _LOGGER.debug(f"installing driver ({driver})")
+        logger.debug(f"installing driver ({driver})")
         subprocess.check_call([sys.executable, "-m", "pip", "install", "--upgrade", module_path])
-        _LOGGER.debug(f"  installed driver ({driver})")
+        logger.debug(f"  installed driver ({driver})")
     except subprocess.CalledProcessError as e:
-        _LOGGER.error(f"failed to install or upgrade module for driver ({driver}): {e}")
+        logger.error(f"failed to install or upgrade module for driver ({driver}): {e}")
 
     # condition the module name to start with "rpi_home_"
     driver = DRIVER_PREFIX + driver
@@ -38,19 +38,19 @@ def _install_driver(driver: str, class_name: str, required_type: Type[EntityType
     try:
         imported_module = importlib.import_module(driver)
     except ModuleNotFoundError:
-        _LOGGER.error(f"module ({driver}) not found.")
+        logger.error(f"module ({driver}) not found.")
         return None
 
     # try to get the requested class
     try:
         imported_class = getattr(imported_module, class_name)
     except AttributeError:
-        _LOGGER.error(f"class ({class_name}) not found in module '{driver}'.")
+        logger.error(f"class ({class_name}) not found in module '{driver}'.")
         return None
 
     # ensure that the found attribute is a subclass of the required type
     if not issubclass(imported_class, required_type):
-        _LOGGER.error(f"class ({class_name}) in module ({driver}) is not a subclass of {required_type}")
+        logger.error(f"class ({class_name}) in module ({driver}) is not a subclass of {required_type}")
         return None
 
     return imported_class

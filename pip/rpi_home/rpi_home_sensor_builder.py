@@ -9,7 +9,7 @@ from homeassistant.components.sensor import SensorDeviceClass, DEVICE_CLASS_UNIT
 from .const import NAME, VALUE, VALUES, UNIT_OF_MEASUREMENT
 from .utils import put_if_not_none
 
-_LOGGER = logging.getLogger(__name__)
+logger = logging.getLogger(__name__)
 
 
 class RpiHomeSensorBuilder:

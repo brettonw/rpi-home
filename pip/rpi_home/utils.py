@@ -1,3 +1,4 @@
+import logging
 import subprocess
 import os
 import json
@@ -5,6 +6,8 @@ import socket
 import uuid
 from time import time
 from typing import Any
+
+logger = logging.getLogger(__name__)
 
 
 def get_lines_from_proc(proc: str | list[str]) -> list[str]:
@@ -38,16 +41,42 @@ def timestamp() -> int:
 
 
 def get_ip_address() -> str:
-    # try to get the name the quick way (on the local network)
-    try:
-        return socket.gethostbyname(socket.gethostname() + ".local")
-    except socket.error:
-        for line in get_lines_from_proc(["ip", "-o", "-4", "addr", "list"]):
-            if "eth0" in line or "wlan0" in line:
-                return line.split()[3].split("/")[0]
+    # start with the worst possible answer we can get
+    ip_address = "127.0.0.1"
 
-    # if we didn't get anything else... (but this probably return 127.0.1.1)
-    return socket.gethostbyname(socket.gethostname())
+    # try to get the name the quick way (on the .local network)
+    try:
+        logger.debug(f"trying to get IP address from .local")
+        qualified_hostname = socket.gethostname() + ".local"
+        logger.debug(f"trying to get IP address from {qualified_hostname}")
+        ip_address = socket.gethostbyname(qualified_hostname)
+        if ip_address != "127.0.0.1":
+            logger.debug(f"got IP address ({ip_address}) from {qualified_hostname}")
+            return ip_address
+    except socket.error as exc:
+        logger.warning(f"failed to get IP address from `socket`: {exc}")
+
+    # try the long way
+    logger.debug(f"trying to get IP address from `ip -o -4 addr list`")
+    for line in get_lines_from_proc(["ip", "-o", "-4", "addr", "list"]):
+        if "eth0" in line or "wlan0" in line:
+            ip_address = line.split()[3].split("/")[0]
+            logger.debug(f"got IP address ({ip_address}) from {line}")
+            return ip_address
+
+
+    # if we didn't get anything else... (but this probably returns 127.0.1.1)
+    try:
+        hostname = socket.gethostname()
+        ip_address = socket.gethostbyname(hostname)
+        logger.debug(f"got IP address ({ip_address}) from just {hostname}")
+        return ip_address
+    except socket.error as exc:
+        logger.warning(f"failed to get IP address from `socket`: {exc}")
+
+    # the absolute last fallback
+    logger.debug(f"returning final fallback IP address ({ip_address})")
+    return ip_address
 
 def get_mac_address() -> str:
     mac = uuid.UUID(int=uuid.getnode()).hex[-12:]

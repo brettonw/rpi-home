@@ -14,7 +14,7 @@ from homeassistant.helpers.update_coordinator import (
 
 from .const import DOMAIN
 
-_LOGGER = logging.getLogger(__name__)
+logger = logging.getLogger(__name__)
 
 
 class MyEntity(CoordinatorEntity, LightEntity):

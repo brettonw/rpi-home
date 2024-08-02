@@ -10,7 +10,7 @@ from .const import RPI_HOME_ROOT_DIR, NAME, VERSION, SENSORS, CONTROLS, SETTINGS
 from .utils import get_lines_from_proc, load_json_file, timestamp, get_ip_address, get_mac_address
 from .rpi_home_driver import RpiHomeSensorDriver, RpiHomeControlDriver
 
-_LOGGER = logging.getLogger(__name__)
+logger = logging.getLogger(__name__)
 
 
 class RpiHomeDevice:
@@ -31,7 +31,7 @@ class RpiHomeDevice:
         config_file = os.path.join(RPI_HOME_ROOT_DIR, "config.json")
         self._config = load_json_file(config_file)
         if self._config is None:
-            _LOGGER.warning(f"using default config. at a minimum, copy the example config")
+            logger.warning(f"using default config. at a minimum, copy the example config")
             self._config = {"settings": {"sampling_interval": 10}, "sensors": [{"driver": "host"}], "controls": []}
 
         # store off a few static values
@@ -93,7 +93,7 @@ class RpiHomeDevice:
 
         # loop through the config to read each sensor
         for sensor in self.sensors:
-            _LOGGER.debug(f"reading from driver ({sensor.cache_name})")
+            logger.debug(f"reading from driver ({sensor.cache_name})")
             sensor_report = sensor.report()
             if sensor_report is not None:
                 output_sensors.extend(sensor_report)
