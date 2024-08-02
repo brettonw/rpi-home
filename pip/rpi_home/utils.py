@@ -46,12 +46,12 @@ def get_ip_address() -> str:
 
     # try to get the name the quick way (on the .local network)
     try:
-        logger.debug(f"trying to get IP address from .local")
+        logger.debug(f"trying to get IP address from `socket` in '.local' network")
         qualified_hostname = socket.gethostname() + ".local"
-        logger.debug(f"trying to get IP address from {qualified_hostname}")
+        logger.debug(f"trying to get IP address from `socket` as '{qualified_hostname}'")
         ip_address = socket.gethostbyname(qualified_hostname)
         if ip_address != "127.0.0.1":
-            logger.debug(f"got IP address ({ip_address}) from {qualified_hostname}")
+            logger.debug(f"got IP address ({ip_address}) from `socket` as '{qualified_hostname}'")
             return ip_address
     except socket.error as exc:
         logger.warning(f"failed to get IP address from `socket`: {exc}")
@@ -66,9 +66,10 @@ def get_ip_address() -> str:
 
     # if we didn't get anything else... (but this probably returns 127.0.1.1)
     try:
+        logger.debug(f"trying to get IP address from `socket` using unqualified name")
         hostname = socket.gethostname()
         ip_address = socket.gethostbyname(hostname)
-        logger.debug(f"got IP address ({ip_address}) from just {hostname}")
+        logger.debug(f"got IP address ({ip_address}) from `socket` using just '{hostname}'")
         return ip_address
     except socket.error as exc:
         logger.warning(f"failed to get IP address from `socket`: {exc}")
