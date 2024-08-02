@@ -23,9 +23,9 @@ def _install_driver(driver: str, class_name: str, required_type: Type[EntityType
 
     # use pip to install or upgrade the module
     try:
-        module_path = os.path.join(RPI_HOME_ROOT_DIR, "rpi", "drivers", driver)
+        module_path = os.path.join(RPI_HOME_ROOT_DIR, "platform", "drivers", driver)
         _LOGGER.debug(f"installing driver ({driver})")
-        subprocess.check_call([sys.executable, '-m', 'pip', 'install', '--upgrade', module_path])
+        subprocess.check_call([sys.executable, "-m", "pip", "install", "--upgrade", module_path])
         _LOGGER.debug(f"  installed driver ({driver})")
     except subprocess.CalledProcessError as e:
         _LOGGER.error(f"failed to install or upgrade module for driver ({driver}): {e}")
