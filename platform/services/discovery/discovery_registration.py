@@ -7,7 +7,7 @@ import time
 import sys
 
 from zeroconf import IPVersion, ServiceInfo, Zeroconf
-from rpi_home import RPI_HOME, get_ip_address
+from rpi_home import RPI_HOME, get_ip_address, get_serial_number, SERIAL_NUMBER, RPI_HOME_VERSION, VERSION
 from const import _SVC, _SVC_PROTOCOL_HTTP, _SVC_PROTOCOL_HTTP_PORT, ZEROCONF
 
 # Configure logging
@@ -24,13 +24,14 @@ logger = logging.getLogger(__name__)
 zc = Zeroconf(ip_version=IPVersion.V4Only)
 hostname = socket.gethostname()
 ip_address = get_ip_address()
+serial_number = get_serial_number()
 
 service_info = ServiceInfo(
     type_=_SVC_PROTOCOL_HTTP,
     name=f"{hostname}.{_SVC_PROTOCOL_HTTP}",
     addresses=[socket.inet_aton(ip_address)],
     port=_SVC_PROTOCOL_HTTP_PORT,
-    properties={_SVC: RPI_HOME},
+    properties={_SVC: RPI_HOME, VERSION: RPI_HOME_VERSION, SERIAL_NUMBER: serial_number},
     server=hostname
 )
 
@@ -50,7 +51,7 @@ def handle_sigterm(signum, frame):
     cleanup(f"SIGTERM - {signum}")
 
 
-# set up the prep to be able to stop the service
+# set up to stop the service when interrupted
 signal.signal(signal.SIGINT, handle_sigint)
 signal.signal(signal.SIGTERM, handle_sigterm)
 

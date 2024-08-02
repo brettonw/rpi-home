@@ -82,6 +82,27 @@ def get_ip_address() -> str:
     return ip_address
 
 
-def get_mac_address() -> str:
-    mac = uuid.UUID(int=uuid.getnode()).hex[-12:]
-    return ":".join([mac[e:e+2] for e in range(0, 12, 2)])
+def get_serial_number() -> str:
+    return get_fields_from_proc(["cat", "/sys/firmware/devicetree/base/serial-number"], -1)[0]
+    # also consider `grep Serial /proc/cpuinfo`
+    # or using vcgencmd otp_dump, lines 28-35 (ish)
+    # note that we *could* burn the OTP registers to create a unique serial number for ourselves...
+    # https://www.raspberrypi.com/documentation/computers/raspberry-pi.html#otp-registers
+
+def get_mac_address() -> dict[str, str]:
+    macs = {}
+    for interface in ["eth*", "wlan*"]:
+        field = get_fields_from_proc(["cat", f"/sys/class/net/{interface}/address"], 0)[0]
+        if "cat" not in field:
+            macs[interface] = field
+    return macs
+    # also consider this approach for generating a unique id
+    # mac = uuid.UUID(int=uuid.getnode()).hex[-12:]
+    # return ":".join([mac[e:e+2] for e in range(0, 12, 2)])
+
+def get_os_description() -> str:
+    for line in get_lines_from_proc(["lsb_release", "-a"]):
+        if "Description" in line:
+            return line.split(':')[1].strip()
+    # if we didn't get anything else
+    return "unknown"

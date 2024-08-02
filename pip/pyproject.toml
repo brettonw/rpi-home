@@ -4,7 +4,7 @@ build-backend = "setuptools.build_meta"
 
 [project]
 name = "rpi-home"
-version = "2.0.11"
+version = "2.0.12"
 description = "python module for rpi-home"
 readme = "readme.md"
 requires-python = ">=3.8"
@@ -14,7 +14,7 @@ maintainers = [ {name = "Bretton Wade", email = "bretton.wade@irdev.us" } ]
 dependencies = ["homeassistant", "toml", "zeroconf"]
 
 [project.urls]
-#"Homepage" = "https://github.com/pypa/sampleproject"
+"Homepage" = "https://github.com/brettonw/rpi_home"
 #"Bug Reports" = "https://github.com/pypa/sampleproject/issues"
 #"Funding" = "https://donate.pypi.org"
 #"Say Thanks!" = "http://saythanks.io/to/example"
