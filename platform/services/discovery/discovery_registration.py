@@ -15,7 +15,7 @@ logger = logging.getLogger(__name__)
 
 if __name__ == "__main__":
     logging.getLogger(_ZEROCONF).setLevel(logging.DEBUG)
-    logger.setLevel(logging.DEBUG)
+    #logger.setLevel(logging.DEBUG)
 
     # set up the zeroconf
     zc = Zeroconf(ip_version=IPVersion.V4Only)
