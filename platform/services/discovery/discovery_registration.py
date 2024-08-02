@@ -8,46 +8,60 @@ import sys
 
 from zeroconf import IPVersion, ServiceInfo, Zeroconf
 from rpi_home import get_ip_address
-from const import RPI_HOME, _SVC, _SVC_PROTOCOL_HTTP, _SVC_PROTOCOL_HTTP_PORT, _ZEROCONF
+from const import RPI_HOME, _SVC, _SVC_PROTOCOL_HTTP, _SVC_PROTOCOL_HTTP_PORT
 
+# Configure logging
+logging.basicConfig(level=logging.DEBUG, format="%(asctime)s - %(name)s - %(levelname)s - %(message)s")
+
+# Create a custom logger
 logger = logging.getLogger(__name__)
+logger.setLevel(logging.DEBUG)
 
-if __name__ == "__main__":
-    #logging.getLogger(_ZEROCONF).setLevel(logging.DEBUG)
-    logger.setLevel(logging.INFO)
+# Add a console handler
+console_handler = logging.StreamHandler()
+console_handler.setLevel(logging.DEBUG)
+formatter = logging.Formatter("%(asctime)s - %(name)s - %(levelname)s - %(message)s")
+console_handler.setFormatter(formatter)
+logger.addHandler(console_handler)
 
-    # set up the zeroconf
-    zc = Zeroconf(ip_version=IPVersion.V4Only)
-    hostname = socket.gethostname()
-    ip_address = get_ip_address()
+# logging.getLogger(_ZEROCONF).setLevel(logging.DEBUG)
 
-    service_info = ServiceInfo(
-        type_=_SVC_PROTOCOL_HTTP,
-        name=f"{hostname}.{_SVC_PROTOCOL_HTTP}",
-        addresses=[socket.inet_aton(ip_address)],
-        port=_SVC_PROTOCOL_HTTP_PORT,
-        properties={_SVC: RPI_HOME},
-        server=hostname
-    )
+# set up the zeroconf
+zc = Zeroconf(ip_version=IPVersion.V4Only)
+hostname = socket.gethostname()
+ip_address = get_ip_address()
 
-    def cleanup(message: str):
-        logger.info(f"Unregistering ({message})...")
-        zc.unregister_service(service_info)
-        zc.close()
-        sys.exit(0)
+service_info = ServiceInfo(
+    type_=_SVC_PROTOCOL_HTTP,
+    name=f"{hostname}.{_SVC_PROTOCOL_HTTP}",
+    addresses=[socket.inet_aton(ip_address)],
+    port=_SVC_PROTOCOL_HTTP_PORT,
+    properties={_SVC: RPI_HOME},
+    server=hostname
+)
 
-    def handle_sigint(signum, frame):
-        cleanup("SIGINT")
 
-    def handle_sigterm(signum, frame):
-        cleanup("SIGTERM")
+def cleanup(message: str):
+    logger.info(f"Unregistering ({message})...")
+    zc.unregister_service(service_info)
+    zc.close()
+    sys.exit(0)
 
-    # set up the prep to be able to stop the service
-    signal.signal(signal.SIGINT, handle_sigint)
-    signal.signal(signal.SIGTERM, handle_sigterm)
 
-    # start the actual discovery registration
-    logger.info(f"Registering {RPI_HOME} service on {hostname} ({ip_address})")
-    zc.register_service(service_info)
-    while True:
-        time.sleep(1)
+def handle_sigint(signum, frame):
+    cleanup(f"SIGINT - {signum} {frame}")
+
+
+def handle_sigterm(signum, frame):
+    cleanup(f"SIGTERM - {signum} {frame}")
+
+
+# set up the prep to be able to stop the service
+signal.signal(signal.SIGINT, handle_sigint)
+signal.signal(signal.SIGTERM, handle_sigterm)
+
+# start the actual discovery registration
+logger.info(f"Registering {RPI_HOME} service on {hostname} ({ip_address})")
+zc.register_service(service_info)
+while True:
+    time.sleep(1)
