@@ -65,6 +65,7 @@ def get_ip_address() -> str:
             ip_address = line.split()[3].split("/")[0]
             logger.debug(f"got IP address ({ip_address}) from {line[:40]}...")
             return ip_address
+    logger.debug(f"no functional interfaces found from `ip -o -4 addr list`")
 
     # if we didn't get anything else... (but this probably returns 127.0.1.1)
     try:
@@ -76,7 +77,7 @@ def get_ip_address() -> str:
     except socket.error as exc:
         logger.warning(f"failed to get IP address from `socket`: {exc}")
 
-    # the absolute last fallback
+    # the absolute last fallback, if there was a socket exception for some reason
     logger.debug(f"returning final fallback IP address ({ip_address})")
     return ip_address
 
