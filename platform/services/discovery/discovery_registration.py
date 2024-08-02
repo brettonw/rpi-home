@@ -5,7 +5,6 @@ import socket
 import signal
 import time
 import sys
-import asyncio
 
 from zeroconf import IPVersion, ServiceInfo, Zeroconf
 from rpi_home import get_ip_address
@@ -14,8 +13,8 @@ from const import RPI_HOME, _SVC, _SVC_PROTOCOL_HTTP, _SVC_PROTOCOL_HTTP_PORT, _
 logger = logging.getLogger(__name__)
 
 if __name__ == "__main__":
-    logging.getLogger(_ZEROCONF).setLevel(logging.DEBUG)
-    #logger.setLevel(logging.DEBUG)
+    #logging.getLogger(_ZEROCONF).setLevel(logging.DEBUG)
+    logger.setLevel(logging.DEBUG)
 
     # set up the zeroconf
     zc = Zeroconf(ip_version=IPVersion.V4Only)
