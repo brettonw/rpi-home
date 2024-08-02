@@ -42,11 +42,11 @@ def cleanup(message: str):
 
 
 def handle_sigint(signum, frame):
-    cleanup(f"SIGINT - {signum} {frame}")
+    cleanup(f"SIGINT - {signum}")
 
 
 def handle_sigterm(signum, frame):
-    cleanup(f"SIGTERM - {signum} {frame}")
+    cleanup(f"SIGTERM - {signum}")
 
 
 # set up the prep to be able to stop the service
