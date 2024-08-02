@@ -38,11 +38,11 @@ if __name__ == "__main__":
         zc.close()
         sys.exit(0)
 
-    def handle_sigint(signum, frame):
-        cleanup("SIGINT")
+    async def handle_sigint(signum, frame):
+        await cleanup("SIGINT")
 
-    def handle_sigterm(signum, frame):
-        cleanup("SIGTERM")
+    async def handle_sigterm(signum, frame):
+        await cleanup("SIGTERM")
 
     # set up the prep to be able to stop the service
     signal.signal(signal.SIGINT, handle_sigint)
