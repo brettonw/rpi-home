@@ -7,17 +7,18 @@ import time
 import sys
 
 from zeroconf import IPVersion, ServiceInfo, Zeroconf
-from rpi_home import get_ip_address
-from const import RPI_HOME, _SVC, _SVC_PROTOCOL_HTTP, _SVC_PROTOCOL_HTTP_PORT
+from rpi_home import RPI_HOME, get_ip_address
+from const import _SVC, _SVC_PROTOCOL_HTTP, _SVC_PROTOCOL_HTTP_PORT, ZEROCONF
 
 # Configure logging
 logging.basicConfig(level=logging.INFO)
-#logging.basicConfig(level=logging.DEBUG, format="%(asctime)s - %(name)s - %(levelname)s - %(message)s")
+# logging.basicConfig(level=logging.DEBUG, format="%(asctime)s - %(name)s - %(levelname)s - %(message)s")
 
 # Create a custom logger
 logger = logging.getLogger(__name__)
 logger.setLevel(logging.DEBUG)
-# logging.getLogger(_ZEROCONF).setLevel(logging.DEBUG)
+logging.getLogger(RPI_HOME).setLevel(logging.DEBUG)
+# logging.getLogger(ZEROCONF).setLevel(logging.DEBUG)
 
 # set up the zeroconf
 zc = Zeroconf(ip_version=IPVersion.V4Only)
