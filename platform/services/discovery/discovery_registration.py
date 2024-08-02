@@ -5,16 +5,17 @@ import socket
 import signal
 import time
 import sys
+import asyncio
 
 from zeroconf import IPVersion, ServiceInfo, Zeroconf
 from rpi_home import get_ip_address
 from const import RPI_HOME, _SVC, _SVC_PROTOCOL_HTTP, _SVC_PROTOCOL_HTTP_PORT, _ZEROCONF
 
-_LOGGER = logging.getLogger(__name__)
+logger = logging.getLogger(__name__)
 
 if __name__ == "__main__":
     logging.getLogger(_ZEROCONF).setLevel(logging.DEBUG)
-    _LOGGER.setLevel(logging.DEBUG)
+    logger.setLevel(logging.DEBUG)
 
     # set up the zeroconf
     zc = Zeroconf(ip_version=IPVersion.V4Only)
@@ -30,30 +31,25 @@ if __name__ == "__main__":
         server=hostname
     )
 
-    def cleanup():
-        _LOGGER.info("Unregistering...")
-        zc.unregister_service(service_info)
+    async def cleanup(message: str):
+        logger.info("Unregistering ({message})...")
+        #zc.unregister_service(service_info)
+        await zc.async_unregister_all_services()
         zc.close()
+        sys.exit(0)
 
     def handle_sigint(signum, frame):
-        _LOGGER.info("SIGINT received. Shutting down...")
-        cleanup()
-        sys.exit(0)
+        cleanup("SIGINT")
 
     def handle_sigterm(signum, frame):
-        _LOGGER.info("SIGTERM received. Shutting down...")
-        cleanup()
-        sys.exit(0)
+        cleanup("SIGTERM")
 
     # set up the prep to be able to stop the service
     signal.signal(signal.SIGINT, handle_sigint)
     signal.signal(signal.SIGTERM, handle_sigterm)
 
     # start the actual discovery registration
-    _LOGGER.info(f"Registering {RPI_HOME} service on {hostname} ({ip_address})")
+    logger.info(f"Registering {RPI_HOME} service on {hostname} ({ip_address})")
     zc.register_service(service_info)
-    try:
-        while True:
-            time.sleep(1)
-    finally:
-        cleanup()
+    while True:
+        time.sleep(1)
