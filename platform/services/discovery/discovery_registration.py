@@ -31,18 +31,17 @@ if __name__ == "__main__":
         server=hostname
     )
 
-    async def cleanup(message: str):
+    def cleanup(message: str):
         logger.info("Unregistering ({message})...")
-        #zc.unregister_service(service_info)
-        await zc.async_unregister_all_services()
+        zc.unregister_service(service_info)
         zc.close()
         sys.exit(0)
 
-    async def handle_sigint(signum, frame):
-        await cleanup("SIGINT")
+    def handle_sigint(signum, frame):
+        cleanup("SIGINT")
 
-    async def handle_sigterm(signum, frame):
-        await cleanup("SIGTERM")
+    def handle_sigterm(signum, frame):
+        cleanup("SIGTERM")
 
     # set up the prep to be able to stop the service
     signal.signal(signal.SIGINT, handle_sigint)
