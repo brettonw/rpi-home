@@ -1,15 +1,15 @@
 {
-  "domain": "rpi_sensor",
-  "name": "RPI Sensor",
+  "domain": "rpi_home",
+  "name": "RPi Home",
+  "codeowners": ["@brettonw"],
   "config_flow": true,
-  "documentation": "https://github.com/brettonw/rpi_sensor",
-  "issue_tracker": "https://github.com/brettonw/rpi_sensor/issues",
-  "version": "2.0.0",
+  "dependencies": [],
+  "documentation": "https://github.com/brettonw/rpi_home",
+  "homekit": {},
+  "iot_class": "local_polling",
+  "issue_tracker": "https://github.com/brettonw/rpi_home/issues",
   "requirements": [],
   "ssdp": [],
-  "zeroconf": [],
-  "homekit": {},
-  "dependencies": [],
-  "iot_class": "local_polling",
-  "codeowners": ["@brettonw"]
+  "version": "2.0.0",
+  "zeroconf": [{"type": "_http._tcp.local.", "properties": {"svc": "rpi_home"}}]
 }

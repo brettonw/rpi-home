@@ -6,8 +6,8 @@ import logging
 from typing import Any
 
 from .version import RPI_HOME_VERSION
-from .const import RPI_HOME_ROOT_DIR, NAME, VERSION, SENSORS, CONTROLS, SETTINGS, TIMESTAMP, HOST, IP_ADDRESS, OPERATING_SYSTEM
-from .utils import get_lines_from_proc, load_json_file, timestamp, get_ip_address
+from .const import RPI_HOME_ROOT_DIR, NAME, VERSION, SENSORS, CONTROLS, SETTINGS, TIMESTAMP, HOST, IP_ADDRESS, MAC_ADDRESS, OPERATING_SYSTEM
+from .utils import get_lines_from_proc, load_json_file, timestamp, get_ip_address, get_mac_address
 from .rpi_home_driver import RpiHomeSensorDriver, RpiHomeControlDriver
 
 _LOGGER = logging.getLogger(__name__)
@@ -33,9 +33,10 @@ class RpiHomeDevice:
         assert self._config is not None
 
         # store off a few static values
-        self.hostname = socket.gethostname()
-        self.ip_address = get_ip_address()
-        self.os_description = self._get_os_description()
+        self._hostname = socket.gethostname()
+        self._ip_address = get_ip_address()
+        self._mac_address = get_mac_address()
+        self._os_description = self._get_os_description()
 
         # run through the config and cache the sensor drivers
         self._sensors: list[RpiHomeSensorDriver] = []
@@ -77,9 +78,10 @@ class RpiHomeDevice:
             VERSION: RPI_HOME_VERSION,
             TIMESTAMP: timestamp(),
             HOST: {
-                NAME: self.hostname,
-                IP_ADDRESS: self.ip_address,
-                OPERATING_SYSTEM: self.os_description
+                NAME: self._hostname,
+                IP_ADDRESS: self._ip_address,
+                MAC_ADDRESS: self._mac_address,
+                OPERATING_SYSTEM: self._os_description
             },
             SENSORS: output_sensors
         }
