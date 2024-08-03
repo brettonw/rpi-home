@@ -16,11 +16,14 @@ def get_lines_from_proc(proc: str | list[str]) -> list[str]:
 
 
 def get_fields_from_proc(proc: str | list[str], line: int, delimiter: str | None = None) -> list[str]:
-    return get_lines_from_proc(proc)[line].split(delimiter)
+    lines = get_lines_from_proc(proc)
+    return lines[line].split(delimiter) if len(lines) > line else []
 
 
 def get_float_field_from_proc(proc: str | list[str], line: int, field: int, delimiter: str | None = None) -> float:
-    return float(get_fields_from_proc(proc, line, delimiter)[field])
+    fields = get_fields_from_proc(proc, line, delimiter)
+    # XXX what should the fallback be?
+    return float(fields[field]) if len(fields) > field else 0.0
 
 
 def load_json_file(path: str) -> dict[str, Any] | None:
@@ -92,6 +95,7 @@ def get_serial_number() -> str:
 def get_mac_address() -> dict[str, str]:
     macs = {}
     for interface in ["eth*", "wlan*"]:
+        lines = get_lines_from_proc(["cat", f"/sys/class/net/{interface}/address"])
         field = get_fields_from_proc(["cat", f"/sys/class/net/{interface}/address"], 0)[0]
         if "cat" not in field:
             macs[interface] = field
