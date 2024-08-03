@@ -98,7 +98,7 @@ def get_serial_number() -> str:
 
 def get_mac_address() -> dict[str, str]:
     macs = {}
-    for interface in ["eth*", "wlan*"]:
+    for interface in ["eth0", "wlan0"]:
         field = get_field_from_proc(["cat", f"/sys/class/net/{interface}/address"], 0, 0)
         if (field is not None) and ("cat" not in field):
             macs[interface] = field
