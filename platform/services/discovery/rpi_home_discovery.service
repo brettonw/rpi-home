@@ -1,10 +1,10 @@
 [Unit]
-Description=RPI Home Discovery Listener Service
+Description=RPI Home Discovery Service
 After=network.target network-online.target
 Wants=network-online.target
 
 [Service]
-ExecStart=/usr/local/rpi_home/platform/services/discovery/discovery_registration.py
+ExecStart=/usr/local/rpi_home/platform/services/discovery/discovery.py
 StandardOutput=inherit
 StandardError=inherit
 Restart=always
