@@ -9,7 +9,7 @@ services_dir="$rpi_home_dir/platform/services";
 $rpi_home_dir/python3/bin/pip3 install --upgrade "$rpi_home_dir/pip/";
 
 # iterate over each subdirectory of the services directory
-subdirs=$(find $services_dir -maxdepth 1 -type d -not -path '.');
+subdirs=$(find "$services_dir" -mindepth 1 -maxdepth 1 -type d -not -path '.');
 for dir in $subdirs; do
   # get the subdirectory name without the full path
   subdir_name=$(basename "$dir");
