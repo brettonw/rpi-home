@@ -3,7 +3,6 @@ import subprocess
 import os
 import json
 import socket
-import uuid
 from time import time
 from typing import Any
 
@@ -20,10 +19,14 @@ def get_fields_from_proc(proc: str | list[str], line: int, delimiter: str | None
     return lines[line].split(delimiter) if len(lines) > line else []
 
 
-def get_float_field_from_proc(proc: str | list[str], line: int, field: int, delimiter: str | None = None) -> float:
+def get_field_from_proc(proc: str | list[str], line: int, field: int, fallback: str = None, delimiter: str | None = None) -> str | None:
     fields = get_fields_from_proc(proc, line, delimiter)
-    # XXX what should the fallback be?
-    return float(fields[field]) if len(fields) > field else 0.0
+    return fields[field] if len(fields) > field else fallback
+
+
+def get_float_field_from_proc(proc: str | list[str], line: int, field: int, fallback: float | None = None, delimiter: str | None = None) -> float | None:
+    field = get_field_from_proc(proc, line, field, delimiter=delimiter)
+    return float(field) if field is not None else fallback
 
 
 def load_json_file(path: str) -> dict[str, Any] | None:
@@ -92,17 +95,18 @@ def get_serial_number() -> str:
     # note that we *could* burn the OTP registers to create a unique serial number for ourselves...
     # https://www.raspberrypi.com/documentation/computers/raspberry-pi.html#otp-registers
 
+
 def get_mac_address() -> dict[str, str]:
     macs = {}
     for interface in ["eth*", "wlan*"]:
-        lines = get_lines_from_proc(["cat", f"/sys/class/net/{interface}/address"])
-        field = get_fields_from_proc(["cat", f"/sys/class/net/{interface}/address"], 0)[0]
-        if "cat" not in field:
+        field = get_field_from_proc(["cat", f"/sys/class/net/{interface}/address"], 0, 0)
+        if (field is not None) and ("cat" not in field):
             macs[interface] = field
     return macs
     # also consider this approach for generating a unique id
     # mac = uuid.UUID(int=uuid.getnode()).hex[-12:]
     # return ":".join([mac[e:e+2] for e in range(0, 12, 2)])
+
 
 def get_os_description() -> str:
     for line in get_lines_from_proc(["lsb_release", "-a"]):
