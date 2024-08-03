@@ -8,7 +8,7 @@ ExecStart=/usr/local/rpi_home/platform/services/discovery/discovery_registration
 StandardOutput=inherit
 StandardError=inherit
 Restart=always
-User=brettonw
+User={user}
 Type=simple
 
 [Install]

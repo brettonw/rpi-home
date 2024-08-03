@@ -8,7 +8,7 @@ ExecStart=/usr/local/rpi_home/platform/services/sampler/sampler.py
 StandardOutput=inherit
 StandardError=inherit
 Restart=always
-User=brettonw
+User={user}
 Type=simple
 
 [Install]

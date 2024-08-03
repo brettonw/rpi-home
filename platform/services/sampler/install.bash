@@ -11,9 +11,11 @@ if [ -f "/lib/systemd/system/$service_name" ]; then
   sudo systemctl stop "$service_name";
 fi
 
-# copy the service file to the lib directory
+# rewrite the service file and copy it to the lib directory
 echo "installing \"$service_name\"...";
-sudo cp "$executing_dir/$service_name" "/lib/systemd/system/"
+perl -pe "s/\Q{user}\E/$USER/g" "$executing_dir/$service_name" > "$executing_dir/$service_name.tmp";
+sudo cp "$executing_dir/$service_name.tmp" "/lib/systemd/system/$service_name"
+rm -f "$executing_dir/$service_name.tmp";
 
 # enable the service
 echo "enabling \"$service_name\"...";
