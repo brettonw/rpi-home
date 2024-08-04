@@ -7,7 +7,7 @@ import time
 import sys
 
 from zeroconf import IPVersion, ServiceInfo, Zeroconf
-from rpi_home import RPI_HOME, RpiHomeDevice, DISPLAY_NAME, SERIAL_NUMBER, RPI_HOME_VERSION
+from rpi_home import RPI_HOME, RpiHomeDevice, SERIAL_NUMBER, RPI_HOME_VERSION
 from const import _SVC_PROTOCOL_HTTP, _SVC_PROTOCOL_HTTP_PORT, ZEROCONF
 
 # Configure logging

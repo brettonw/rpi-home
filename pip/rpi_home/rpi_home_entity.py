@@ -1,5 +1,7 @@
 from abc import ABC, abstractmethod
 from typing import Any
+
+from .rpi_home_driver import RpiHomeSensorDriver, RpiHomeControlDriver
 from .const import DRIVER_DEFAULT_SENSOR_CLASS_NAME, DRIVER_DEFAULT_CONTROL_CLASS_NAME
 
 
@@ -18,7 +20,7 @@ class RpiHomeEntity(ABC):
 class RpiHomeSensor(RpiHomeEntity):
     @classmethod
     @abstractmethod
-    def report(cls) -> list[dict[str, Any]] | None:
+    def report(cls, driver: RpiHomeSensorDriver) -> list[dict[str, Any]] | None:
         pass
 
     @classmethod
@@ -29,7 +31,7 @@ class RpiHomeSensor(RpiHomeEntity):
 class RpiHomeControl(RpiHomeEntity):
     @classmethod
     @abstractmethod
-    def perform(cls, data: dict[str, Any]) -> bool:
+    def perform(cls, data: dict[str, Any], driver: RpiHomeControlDriver) -> bool:
         pass
 
     @classmethod

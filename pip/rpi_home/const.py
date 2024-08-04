@@ -26,6 +26,7 @@ SENSOR_DEVICE_CLASS = "sensor_device_class"
 UNIT_OF_MEASUREMENT = "unit_of_measurement"
 DRIVER = "driver"
 CLASS_NAME = "class_name"
+REMAP = "remap"
 CACHE = "cache"
 SAMPLING_INTERVAL = "sampling_interval"
 DEFAULT_SAMPLING_INTERVAL = 10
