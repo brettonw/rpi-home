@@ -13,7 +13,7 @@ from homeassistant.components.sensor import SensorDeviceClass, DEVICE_CLASS_UNIT
 
 from .const import (RPI_HOME_ROOT_DIR, DRIVER_PREFIX, DRIVER, CLASS_NAME, DISPLAY_NAME, VALUE,
                     VALUES, SENSOR_DEVICE_CLASS, UNIT_OF_MEASUREMENT, ENTITY_ID, REMAP,
-                    DRIVER_DEFAULT_SENSOR_CLASS_NAME, DRIVER_DEFAULT_CONTROL_CLASS_NAME)
+                    DRIVER_DEFAULT_SENSOR_CLASS_NAME, DRIVER_DEFAULT_CONTROL_CLASS_NAME, VERSION, NAME)
 from .utils import put_if_not_none
 
 logger = logging.getLogger(__name__)
@@ -167,6 +167,7 @@ class RpiHomeSensorDriver(RpiHomeDriver):
         return unit
 
     def _make_sensor(self, record: dict, sensor_device_class: SensorDeviceClass | str, unit_of_measurement: str | None = None) -> dict:
+        record[DRIVER] = {NAME: self._module_name, VERSION: self.cls.version()}
         record[SENSOR_DEVICE_CLASS] = sensor_device_class
         put_if_not_none(record, UNIT_OF_MEASUREMENT, self._verify_unit(sensor_device_class, unit_of_measurement))
         return record
