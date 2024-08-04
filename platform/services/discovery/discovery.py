@@ -7,7 +7,7 @@ import time
 import sys
 
 from zeroconf import IPVersion, ServiceInfo, Zeroconf
-from rpi_home import RPI_HOME, get_ip_address, get_serial_number, SERIAL_NUMBER, RPI_HOME_VERSION
+from rpi_home import RPI_HOME, RpiHomeDevice, DISPLAY_NAME, SERIAL_NUMBER, RPI_HOME_VERSION
 from const import _SVC_PROTOCOL_HTTP, _SVC_PROTOCOL_HTTP_PORT, ZEROCONF
 
 # Configure logging
@@ -20,19 +20,20 @@ logger = logging.getLogger(__name__)
 # logging.getLogger(RPI_HOME).setLevel(logging.DEBUG)
 # logging.getLogger(ZEROCONF).setLevel(logging.DEBUG)
 
+# load a rpi_home device
+device = RpiHomeDevice()
+
 # set up the zeroconf
 zc = Zeroconf(ip_version=IPVersion.V4Only)
-hostname = socket.gethostname()
-ip_address = get_ip_address()
-serial_number = get_serial_number()
 
+# set up the service
 service_info = ServiceInfo(
     type_=_SVC_PROTOCOL_HTTP,
-    name=f"{hostname}.{_SVC_PROTOCOL_HTTP}",
-    addresses=[socket.inet_aton(ip_address)],
+    name=f"{device.hostname}.{_SVC_PROTOCOL_HTTP}",
+    addresses=[socket.inet_aton(device.ip_address)],
     port=_SVC_PROTOCOL_HTTP_PORT,
-    properties={RPI_HOME: RPI_HOME_VERSION, SERIAL_NUMBER: serial_number},
-    server=hostname
+    properties={DISPLAY_NAME: device.display_name, RPI_HOME: RPI_HOME_VERSION, SERIAL_NUMBER: device.serial_number},
+    server=device.hostname
 )
 
 
@@ -56,7 +57,7 @@ signal.signal(signal.SIGINT, handle_sigint)
 signal.signal(signal.SIGTERM, handle_sigterm)
 
 # start the actual discovery registration
-logger.info(f"Registering {RPI_HOME} service on {hostname} ({ip_address})")
+logger.info(f"Registering {RPI_HOME} service on {device.hostname} ({device.ip_address})")
 zc.register_service(service_info)
 while True:
     time.sleep(1)

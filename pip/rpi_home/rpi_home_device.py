@@ -8,7 +8,7 @@ from typing import Any
 from .version import RPI_HOME_VERSION
 from .const import (RPI_HOME_ROOT_DIR, NAME, DISPLAY_NAME, VERSION, SENSORS, CONTROLS, SETTINGS,
                     TIMESTAMP, HOST, IP_ADDRESS, MAC_ADDRESS, OPERATING_SYSTEM, SERIAL_NUMBER,
-                    SAMPLING_INTERVAL, DRIVER)
+                    SAMPLING_INTERVAL, DRIVER, DEFAULT_SAMPLING_INTERVAL)
 from .utils import (load_json_file, timestamp, get_ip_address, get_mac_address, get_serial_number,
                     get_os_description)
 from .rpi_home_driver import RpiHomeSensorDriver, RpiHomeControlDriver
@@ -27,11 +27,10 @@ class RpiHomeDevice:
         self._config = load_json_file(config_file)
         if self._config is None:
             logger.warning(f"using default config. at a minimum, copy the example config")
-            self._config = {SETTINGS: {DISPLAY_NAME: "(Change Me)", SAMPLING_INTERVAL: 10}, SENSORS: [{DRIVER: HOST}],CONTROLS: []}
+            self._config = {SETTINGS: {DISPLAY_NAME: "[Change Me]", SAMPLING_INTERVAL: 10}, SENSORS: [{DRIVER: HOST}], CONTROLS: []}
 
         # store off a few static values
-        # XXX what if the config is busted - we need to validate it somewhere
-        self._display_name = self._config[SETTINGS][DISPLAY_NAME]
+        self._display_name = self.settings.get(DISPLAY_NAME, "[Unset]")
         self._hostname = socket.gethostname()
         self._ip_address = get_ip_address()
         self._mac_address = get_mac_address()
@@ -54,7 +53,7 @@ class RpiHomeDevice:
 
     @property
     def settings(self) -> dict[str, Any]:
-        return self._config[SETTINGS]
+        return self._config.get(SETTINGS, {})
 
     @property
     def sensors(self) -> list[RpiHomeSensorDriver]:
@@ -70,7 +69,31 @@ class RpiHomeDevice:
 
     @property
     def sampling_interval(self) -> float:
-        return float(self.settings[SAMPLING_INTERVAL])
+        return float(self.settings.get(SAMPLING_INTERVAL, DEFAULT_SAMPLING_INTERVAL))
+
+    @property
+    def display_name(self) -> str:
+        return self._display_name
+
+    @property
+    def hostname(self) -> str:
+        return self._hostname
+
+    @property
+    def ip_address(self) -> str:
+        return self._ip_address
+
+    @property
+    def mac_address(self) -> dict[str, str]:
+        return self._mac_address
+
+    @property
+    def serial_number(self) -> str:
+        return self._serial_number
+
+    @property
+    def os_description(self) -> str:
+        return self._os_description
 
     def report(self) -> dict:
         output_sensors = []
