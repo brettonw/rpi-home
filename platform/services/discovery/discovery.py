@@ -29,10 +29,10 @@ zc = Zeroconf(ip_version=IPVersion.V4Only)
 # set up the service
 service_info = ServiceInfo(
     type_=_SVC_PROTOCOL_HTTP,
-    name=f"{device.hostname}.{_SVC_PROTOCOL_HTTP}",
+    name=f"{device.display_name}.{_SVC_PROTOCOL_HTTP}",
     addresses=[socket.inet_aton(device.ip_address)],
     port=_SVC_PROTOCOL_HTTP_PORT,
-    properties={DISPLAY_NAME: device.display_name, RPI_HOME: RPI_HOME_VERSION, SERIAL_NUMBER: device.serial_number},
+    properties={RPI_HOME: RPI_HOME_VERSION, SERIAL_NUMBER: device.serial_number},
     server=device.hostname
 )
 
