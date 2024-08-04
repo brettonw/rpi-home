@@ -1,3 +1,4 @@
+from __future__ import annotations
 import logging
 import subprocess
 import sys
@@ -5,19 +6,54 @@ import os
 import re
 import importlib
 from typing import Any, Type, TypeVar
+from abc import ABC, abstractmethod
 
 from homeassistant.const import UnitOfTime, UnitOfTemperature, UnitOfInformation
 from homeassistant.components.sensor import SensorDeviceClass, DEVICE_CLASS_UNITS
 
 from .const import (RPI_HOME_ROOT_DIR, DRIVER_PREFIX, DRIVER, CLASS_NAME, DISPLAY_NAME, VALUE,
-                    VALUES, SENSOR_DEVICE_CLASS, UNIT_OF_MEASUREMENT, ENTITY_ID, REMAP)
-from .rpi_home_entity import RpiHomeEntity, RpiHomeSensor, RpiHomeControl
+                    VALUES, SENSOR_DEVICE_CLASS, UNIT_OF_MEASUREMENT, ENTITY_ID, REMAP,
+                    DRIVER_DEFAULT_SENSOR_CLASS_NAME, DRIVER_DEFAULT_CONTROL_CLASS_NAME)
 from .utils import put_if_not_none
 
 logger = logging.getLogger(__name__)
 
 
-# Define a type variable constrained to RpiEntity or its subclasses
+class RpiHomeEntity(ABC):
+    @classmethod
+    @abstractmethod
+    def version(cls) -> str:
+        pass
+
+    @classmethod
+    @abstractmethod
+    def get_default_class_name(cls) -> str:
+        pass
+
+
+class RpiHomeSensor(RpiHomeEntity):
+    @classmethod
+    @abstractmethod
+    def report(cls, driver: RpiHomeSensorDriver) -> list[dict[str, Any]] | None:
+        pass
+
+    @classmethod
+    def get_default_class_name(cls) -> str:
+        return DRIVER_DEFAULT_SENSOR_CLASS_NAME
+
+
+class RpiHomeControl(RpiHomeEntity):
+    @classmethod
+    @abstractmethod
+    def perform(cls, data: dict[str, Any], driver: RpiHomeControlDriver) -> bool:
+        pass
+
+    @classmethod
+    def get_default_class_name(cls) -> str:
+        return DRIVER_DEFAULT_CONTROL_CLASS_NAME
+
+
+# Define a type variable constrained to a subclass of RpiEntity
 EntityType = TypeVar("EntityType", bound=RpiHomeEntity)
 
 
