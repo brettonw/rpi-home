@@ -12,7 +12,7 @@ from .version import DRIVER_VERSION
 
 def uptime(driver: RpiHomeSensorDriver):
     value = get_float_field_from_proc(["cat", "/proc/uptime"], 0, 0)
-    return driver.make_float_sensor("Uptime", inspect.currentframe().f_code.co_name, value, 2, SensorDeviceClass.DURATION)
+    return driver.make_float_sensor(None, inspect.currentframe().f_code.co_name, value, 2, SensorDeviceClass.DURATION)
 
 
 def cpu_usage(driver: RpiHomeSensorDriver) -> dict:
@@ -28,17 +28,17 @@ def cpu_temperature(driver: RpiHomeSensorDriver) -> dict:
 def memory_usage(driver: RpiHomeSensorDriver):
     fields = get_fields_from_proc(["free", "-bw"], 1)
     total = float(fields[1])
-    return driver.make_float_sensor("Memory Usage", inspect.currentframe().f_code.co_name, (100.0 * (total - float(fields[-1]))) / total, 2, PERCENTAGE)
+    return driver.make_float_sensor(None, inspect.currentframe().f_code.co_name, (100.0 * (total - float(fields[-1]))) / total, 2, PERCENTAGE)
 
 
 def swap_usage(driver: RpiHomeSensorDriver):
     fields = get_fields_from_proc(["free", "-bw"], 2)
-    return driver.make_float_sensor("Swap Usage", inspect.currentframe().f_code.co_name, (100.0 * float(fields[2])) / float(fields[1]), 2, PERCENTAGE)
+    return driver.make_float_sensor(None, inspect.currentframe().f_code.co_name, (100.0 * float(fields[2])) / float(fields[1]), 2, PERCENTAGE)
 
 
 def disk_usage(driver: RpiHomeSensorDriver):
     fields = get_fields_from_proc(["df", "--block-size=1K", "--output=size,used,avail", "/"], 1)
-    return driver.make_float_sensor("Disk Usage", inspect.currentframe().f_code.co_name, (100.0 * float(fields[1])) / float(fields[0]), 2, PERCENTAGE)
+    return driver.make_float_sensor(None, inspect.currentframe().f_code.co_name, (100.0 * float(fields[1])) / float(fields[0]), 2, PERCENTAGE)
 
 
 class Sensor(RpiHomeSensor):
