@@ -1,5 +1,6 @@
 {
   "settings": {
+    "display_name": "Example",
     "sampling_interval": 10,
     "mqtt": {
       "broker": "mosquitto",

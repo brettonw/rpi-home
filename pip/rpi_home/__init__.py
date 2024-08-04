@@ -11,6 +11,6 @@ __all__ = [
     RpiHomeEntity, RpiHomeSensor, RpiHomeControl, RpiHomeDevice, RpiHomeSensorBuilder, RpiHomeSampler,
     get_fields_from_proc, get_float_field_from_proc, get_lines_from_proc, put_if_not_none, timestamp, get_ip_address,
     get_mac_address, get_serial_number, get_os_description,
-    TIMESTAMP, VERSION, HOST, SENSORS, CONTROLS, SETTINGS, NAME, VALUE, VALUES, IP_ADDRESS,
-    OPERATING_SYSTEM, SERIAL_NUMBER, UNIT_OF_MEASUREMENT, DRIVER, CLASS_NAME
+    TIMESTAMP, VERSION, HOST, SENSORS, CONTROLS, SETTINGS, NAME, DISPLAY_NAME, VALUE, VALUES, IP_ADDRESS,
+    OPERATING_SYSTEM, SERIAL_NUMBER, SENSOR_DEVICE_CLASS, UNIT_OF_MEASUREMENT, DRIVER, CLASS_NAME, ENTITY_ID
 ]

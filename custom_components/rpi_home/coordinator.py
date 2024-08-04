@@ -17,7 +17,7 @@ from .const import DOMAIN
 logger = logging.getLogger(__name__)
 
 
-class MyCoordinator(DataUpdateCoordinator):
+class RpiHomeCoordinator(DataUpdateCoordinator):
     """My custom coordinator."""
 
     def __init__(self, hass, my_api):

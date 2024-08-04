@@ -6,8 +6,9 @@ import logging
 from typing import Any
 
 from .version import RPI_HOME_VERSION
-from .const import (RPI_HOME_ROOT_DIR, NAME, VERSION, SENSORS, CONTROLS, SETTINGS, TIMESTAMP, HOST,
-                    IP_ADDRESS, MAC_ADDRESS, OPERATING_SYSTEM, SERIAL_NUMBER)
+from .const import (RPI_HOME_ROOT_DIR, NAME, DISPLAY_NAME, VERSION, SENSORS, CONTROLS, SETTINGS,
+                    TIMESTAMP, HOST, IP_ADDRESS, MAC_ADDRESS, OPERATING_SYSTEM, SERIAL_NUMBER,
+                    SAMPLING_INTERVAL, DRIVER)
 from .utils import (load_json_file, timestamp, get_ip_address, get_mac_address, get_serial_number,
                     get_os_description)
 from .rpi_home_driver import RpiHomeSensorDriver, RpiHomeControlDriver
@@ -26,9 +27,11 @@ class RpiHomeDevice:
         self._config = load_json_file(config_file)
         if self._config is None:
             logger.warning(f"using default config. at a minimum, copy the example config")
-            self._config = {"settings": {"sampling_interval": 10}, "sensors": [{"driver": "host"}], "controls": []}
+            self._config = {SETTINGS: {DISPLAY_NAME: "(Change Me)", SAMPLING_INTERVAL: 10}, SENSORS: [{DRIVER: HOST}],CONTROLS: []}
 
         # store off a few static values
+        # XXX what if the config is busted - we need to validate it somewhere
+        self._display_name = self._config[SETTINGS][DISPLAY_NAME]
         self._hostname = socket.gethostname()
         self._ip_address = get_ip_address()
         self._mac_address = get_mac_address()
@@ -67,7 +70,7 @@ class RpiHomeDevice:
 
     @property
     def sampling_interval(self) -> float:
-        return float(self.settings["sampling_interval"])
+        return float(self.settings[SAMPLING_INTERVAL])
 
     def report(self) -> dict:
         output_sensors = []
@@ -75,6 +78,7 @@ class RpiHomeDevice:
             VERSION: RPI_HOME_VERSION,
             TIMESTAMP: timestamp(),
             HOST: {
+                DISPLAY_NAME: self._display_name,
                 NAME: self._hostname,
                 IP_ADDRESS: self._ip_address,
                 MAC_ADDRESS: self._mac_address,

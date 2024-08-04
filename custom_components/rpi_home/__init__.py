@@ -12,6 +12,8 @@ from homeassistant.helpers.update_coordinator import (
     UpdateFailed,
 )
 
+from .coordinator import RpiHomeCoordinator
+
 from .const import DOMAIN
 
 logger = logging.getLogger(__name__)
@@ -20,7 +22,7 @@ logger = logging.getLogger(__name__)
 async def async_setup_entry(hass, entry, async_add_entities):
     # assuming API object stored here by __init__.py
     my_api = hass.data[DOMAIN][entry.entry_id]
-    coordinator = MyCoordinator(hass, my_api)
+    coordinator = RpiHomeCoordinator(hass, my_api)
 
     # Fetch initial data so we have data when entities subscribe
     #

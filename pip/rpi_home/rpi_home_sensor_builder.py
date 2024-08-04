@@ -6,7 +6,7 @@ from typing import Any
 from homeassistant.const import UnitOfTime, UnitOfTemperature, UnitOfInformation
 from homeassistant.components.sensor import SensorDeviceClass, DEVICE_CLASS_UNITS
 
-from .const import NAME, VALUE, VALUES, UNIT_OF_MEASUREMENT
+from .const import DISPLAY_NAME, VALUE, VALUES, SENSOR_DEVICE_CLASS, UNIT_OF_MEASUREMENT, ENTITY_ID
 from .utils import put_if_not_none
 
 logger = logging.getLogger(__name__)
@@ -52,26 +52,42 @@ class RpiHomeSensorBuilder:
 
     @classmethod
     def _make_sensor(cls, record: dict, sensor_device_class: SensorDeviceClass | str, unit_of_measurement: str | None = None) -> dict:
-        record["sensor_device_class"] = sensor_device_class
+        record[SENSOR_DEVICE_CLASS] = sensor_device_class
         put_if_not_none(record, UNIT_OF_MEASUREMENT, cls._verify_unit(sensor_device_class, unit_of_measurement))
         return record
 
-    @classmethod
-    def make_float_value(cls, name: str, value: float, precision: int) -> dict:
-        return {NAME: name, VALUE: round(value, precision)}
+    @staticmethod
+    def display_name_and_or_entity_id(display_name: str | None, entity_id: str | None) -> dict[str, Any]:
+        record = {}
+        if display_name is not None:
+            record[DISPLAY_NAME] = display_name
+        if entity_id is not None:
+            record[ENTITY_ID] = entity_id
+        assert len(record) > 0
+        return record
 
     @classmethod
-    def make_int_value(cls, name: str, value: float) -> dict:
-        return {NAME: name, VALUE: value}
+    def make_float_value(cls, display_name: str, entity_id: str, value: float, precision: int) -> dict:
+        record = RpiHomeSensorBuilder.display_name_and_or_entity_id(display_name, entity_id)
+        record[VALUE] = round(value, precision)
+        return record
 
     @classmethod
-    def make_float_sensor(cls, name: str, value: float, precision: int, sensor_device_class: SensorDeviceClass | str, unit_of_measurement: str | None = None) -> dict:
-        return cls._make_sensor(cls.make_float_value(name, value, precision), sensor_device_class, unit_of_measurement)
+    def make_int_value(cls, display_name: str, entity_id: str, value: int) -> dict:
+        record = RpiHomeSensorBuilder.display_name_and_or_entity_id(display_name, entity_id)
+        record[VALUE] = value
+        return record
 
     @classmethod
-    def make_int_sensor(cls, name: str, value: int, sensor_device_class: SensorDeviceClass | str, unit_of_measurement: str | None = None) -> dict:
-        return cls._make_sensor(cls.make_int_value(name, value), sensor_device_class, unit_of_measurement)
+    def make_float_sensor(cls, display_name: str, entity_id: str, value: float, precision: int, sensor_device_class: SensorDeviceClass | str, unit_of_measurement: str | None = None) -> dict:
+        return cls._make_sensor(cls.make_float_value(display_name, entity_id, value, precision), sensor_device_class, unit_of_measurement)
 
     @classmethod
-    def make_group_sensor(cls, name: str, values: list[dict[str, Any]], sensor_device_class: SensorDeviceClass | str, unit_of_measurement: str | None = None) -> dict:
-        return cls._make_sensor({NAME: name, VALUES: values}, sensor_device_class, unit_of_measurement)
+    def make_int_sensor(cls, display_name: str, entity_id: str, value: int, sensor_device_class: SensorDeviceClass | str, unit_of_measurement: str | None = None) -> dict:
+        return cls._make_sensor(cls.make_int_value(display_name, entity_id, value), sensor_device_class, unit_of_measurement)
+
+    @classmethod
+    def make_group_sensor(cls, display_name: str, entity_id: str, values: list[dict[str, Any]], sensor_device_class: SensorDeviceClass | str, unit_of_measurement: str | None = None) -> dict:
+        record = RpiHomeSensorBuilder.display_name_and_or_entity_id(display_name, entity_id)
+        record[VALUES] = values
+        return cls._make_sensor(record, sensor_device_class, unit_of_measurement)
