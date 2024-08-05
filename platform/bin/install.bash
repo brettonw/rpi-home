@@ -91,14 +91,6 @@ if [ ! -d "$rpi_home_dir/python3" ]; then
   python3 -m venv "$rpi_home_dir/python3";
 fi;
 
-# set the locale to what we need for sysstat - based off the raspi-config script
-sudo bash <<EOF
-echo "C.UTF-8 UTF-8" > /etc/locale.gen;
-echo "en_US.UTF-8 UTF-8" >> /etc/locale.gen;
-update-locale --no-checks LANG=C.UTF-8;
-dpkg-reconfigure -f noninteractive locales;
-EOF
-
 # set up the target directory
 rpi_home_www_dir="/var/www/html";
 if [ -L "$rpi_home_www_dir" ]; then
