@@ -39,14 +39,16 @@ ask_user() {
 CONFIG="/boot/firmware/config.txt";
 
 # disable bluetooth almost always
-if ask_user "would you like to disable bluetooth?" "y"; then
-  sed -i -e "s/.*dtoverlay=disable-bt/dtoverlay=disable-bt/" "$CONFIG";
-  BT_CONFIG=$(grep "dtoverlay=disable-bt" "$CONFIG");
-  if [ -z "$BT_CONFIG" ]; then
-      echo "dtoverlay=disable-bt" >> "$CONFIG";
-  fi;
-  echo "  bluetooth disabled!"
+#if ask_user "would you like to disable bluetooth?" "y"; then
+sudo bash <<EOF
+sed -i -e "s/.*dtoverlay=disable-bt/dtoverlay=disable-bt/" "$CONFIG";
+BT_CONFIG=$(grep "dtoverlay=disable-bt" "$CONFIG");
+if [ -z "$BT_CONFIG" ]; then
+    echo "dtoverlay=disable-bt" >> "$CONFIG";
 fi;
+echo "  bluetooth disabled!"
+EOF
+#fi;
 
 # determine if this is a wifi-only device (a raspberry pi zero or zero 0)
 is_not_raspberry_pi_zero() {
@@ -64,14 +66,16 @@ is_not_raspberry_pi_zero() {
 
 # disable wifi - probably, if there is an eth0 interface on the device
 if is_not_raspberry_pi_zero; then
-  if ask_user "would you like to disable wifi?" "y"; then
+sudo bash <<EOF
+  #if ask_user "would you like to disable wifi?" "y"; then
     sed -i -e "s/.*dtoverlay=disable-wifi/dtoverlay=disable-wifi/" "$CONFIG";
     BT_CONFIG=$(grep "dtoverlay=disable-wifi" "$CONFIG");
     if [ -z "$BT_CONFIG" ]; then
         echo "dtoverlay=disable-wifi" >> "$CONFIG";
     fi;
     echo "  wifi disabled!"
-  fi;
+  #fi;
+EOF
 fi;
 
 the command line file
@@ -80,7 +84,7 @@ CMDLINE="/boot/firmware/cmdline.txt";
 # update the cmdline to support docker controls we want
 CGROUP_ENABLED=$(grep "cgroup_enable=cpuset cgroup_memory=1 cgroup_enable=memory" "$CMDLINE");
 if [ -z "$CGROUP_ENABLED" ]; then
-    echo " cgroup_enable=cpuset cgroup_memory=1 cgroup_enable=memory" >> "$CMDLINE";
+    sudo echo " cgroup_enable=cpuset cgroup_memory=1 cgroup_enable=memory" | tee -a "$CMDLINE";
 fi;
 
 # install the applications needed by the device at runtime

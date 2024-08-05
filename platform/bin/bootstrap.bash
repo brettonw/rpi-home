@@ -15,7 +15,7 @@ EOF
 
 # update the system
 echo "updating package lists and upgrading installed packages...";
-sudo apt-get update && apt-get upgrade -y;
+sudo apt-get update && sudo apt-get upgrade -y;
 
 # install git
 echo "installing git...";
@@ -28,15 +28,16 @@ git clone https://github.com/brettonw/rpi_home.git;
 # move it to the final destination
 echo "installing rpi_home to /usr/local/...";
 sudo mv rpi_home /usr/local/;
+ln -s /usr/local/rpi_home/;
 
 echo "bootstrap complete. installing rpi_home...";
 /usr/local/rpi_home/platform/bin/install.bash;
 
 # reboot
 echo "rebooting...";
-sudo reboot now;
 ENDSSH
 );
 
 # go to the target machine and run the commands from above
 ssh $1 "${COMMANDS}";
+ssh $1 "sudo reboot now";
