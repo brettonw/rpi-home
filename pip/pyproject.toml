@@ -6,12 +6,17 @@ build-backend = "setuptools.build_meta"
 name = "rpi-home"
 version = "2.1.5"
 description = "python module for rpi-home"
-readme = "readme.md"
-requires-python = ">=3.8"
-license = {file = "license.txt"}
+readme = "README.md"
+requires-python = ">=3.9"
+license = {file = "LICENSE"}
 authors = [ {name = "Bretton Wade", email = "bretton.wade@irdev.us" } ]
 maintainers = [ {name = "Bretton Wade", email = "bretton.wade@irdev.us" } ]
 dependencies = ["homeassistant", "toml", "zeroconf"]
+classifiers = [
+    "Programming Language :: Python",
+    "Programming Language :: Python :: 3",
+]
+keywords = ["raspberry pi", "home assistant"]
 
 [project.urls]
 "Homepage" = "https://github.com/brettonw/rpi_home"
@@ -24,3 +29,6 @@ dependencies = ["homeassistant", "toml", "zeroconf"]
 # if there are data files included in your packages that need to be installed, specify them here.
 # for instance:
 # package-data = {"sample" = ["*.dat"]}
+
+[project.optional-dependencies]
+dev = ["pytest"]

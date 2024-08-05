@@ -1,12 +1,7 @@
 {
   "settings": {
     "display_name": "Example",
-    "sampling_interval": 10,
-    "mqtt": {
-      "broker": "mosquitto",
-      "username": "hass",
-      "password": "1234"
-    }
+    "sampling_interval": 10
   },
   "sensors": [
     { "driver": "host" }
