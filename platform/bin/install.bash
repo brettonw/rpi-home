@@ -66,29 +66,31 @@ is_not_raspberry_pi_zero() {
 
 # disable wifi - probably, if there is an eth0 interface on the device
 if is_not_raspberry_pi_zero; then
+  # if ask_user "would you like to disable wifi?" "y"; then
 sudo bash <<EOF
-  #if ask_user "would you like to disable wifi?" "y"; then
     sed -i -e "s/.*dtoverlay=disable-wifi/dtoverlay=disable-wifi/" "$CONFIG";
     BT_CONFIG=$(grep "dtoverlay=disable-wifi" "$CONFIG");
     if [ -z "$BT_CONFIG" ]; then
         echo "dtoverlay=disable-wifi" >> "$CONFIG";
     fi;
     echo "  wifi disabled!"
-  #fi;
 EOF
+  # fi;
 fi;
 
-the command line file
+# the command line file
 CMDLINE="/boot/firmware/cmdline.txt";
 
 # update the cmdline to support docker controls we want
 CGROUP_ENABLED=$(grep "cgroup_enable=cpuset cgroup_memory=1 cgroup_enable=memory" "$CMDLINE");
 if [ -z "$CGROUP_ENABLED" ]; then
-    sudo echo " cgroup_enable=cpuset cgroup_memory=1 cgroup_enable=memory" | tee -a "$CMDLINE";
+    sudo bash <<EOF
+    echo " cgroup_enable=cpuset cgroup_memory=1 cgroup_enable=memory" | tee -a "$CMDLINE";
+EOF
 fi;
 
 # install the applications needed by the device at runtime
-sudo apt-get install -y sysstat lshw apache2 python3 python3-pip python3-venv;
+sudo apt-get install -y -q sysstat lshw apache2 python3 python3-pip python3-venv;
 
 # create the python venv we'll be using
 if [ ! -d "$rpi_home_dir/python3" ]; then
@@ -110,6 +112,7 @@ echo "linked rpi_home dir ($rpi_home_www_dir).";
 sudo lshw | tee "$rpi_home_www_dir/lshw.txt";
 "$platform_bin_dir/lshw-json.py" "$rpi_home_www_dir/lshw.txt" "$rpi_home_www_dir/platform.json";
 rm -f "$rpi_home_www_dir/lshw.txt";
+echo "exported platform.json.";
 
 # install the services
-$platform_bin_dir/install_sevices.bash;
+$platform_bin_dir/install_services.bash;
