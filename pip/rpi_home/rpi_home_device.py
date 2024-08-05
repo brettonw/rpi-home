@@ -30,8 +30,8 @@ class RpiHomeDevice:
             self._config = {SETTINGS: {DISPLAY_NAME: "[Change Me]", SAMPLING_INTERVAL: 10}, SENSORS: [{DRIVER: HOST}], CONTROLS: []}
 
         # store off a few static values
-        self._display_name = self.settings.get(DISPLAY_NAME, "[Unset]")
         self._hostname = socket.gethostname()
+        self._display_name = self.settings.get(DISPLAY_NAME, self._hostname.capitalize())
         self._ip_address = get_ip_address()
         self._mac_address = get_mac_address()
         self._serial_number = get_serial_number()
@@ -50,6 +50,8 @@ class RpiHomeDevice:
             driver = RpiHomeControlDriver(control)
             if driver.is_valid:
                 self._controls.append(driver)
+
+        # XXX do a test to assert unique names?
 
     @property
     def settings(self) -> dict[str, Any]:
