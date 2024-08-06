@@ -1,8 +1,6 @@
 #! /usr/bin/env bash
 
 # enable i2c - code adapted from raspi-config
-echo "Enabling I2C";
-
 BLACKLIST=/etc/modprobe.d/raspi-blacklist.conf;
 if [ -e /boot/firmware/config.txt ] ; then
   FIRMWARE=/firmware;
