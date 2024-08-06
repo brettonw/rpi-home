@@ -1,8 +1,8 @@
 #!/usr/bin/env bash
 
-COMMANDS=$(cat <<'ENDSSH'
+ssh $1 <<'ENDSSH'
 # just keep the visual clutter to a minimum
-echo > ~/.hushlogin
+echo > ~/.hushlogin;
 
 # set the locale to what we need - based off the raspi-config script
 echo "setting locale...";
@@ -15,11 +15,11 @@ EOF
 
 # update the system
 echo "updating package lists and upgrading installed packages...";
-sudo apt-get update && sudo apt-get upgrade -y;
+sudo apt-get update && sudo apt-get upgrade -y -q;
 
 # install git
 echo "installing git...";
-sudo apt-get install -y git;
+sudo apt-get install -y -q git;
 
 # clone the rpi_home repository
 echo "cloning rpi_home...";
@@ -32,11 +32,8 @@ ln -s /usr/local/rpi_home/;
 
 echo "bootstrap complete.";
 /usr/local/rpi_home/platform/bin/install.bash;
+sleep 15;
 ENDSSH
-);
-
-# go to the target machine and run the commands from above
-ssh $1 "${COMMANDS}";
 
 # reboot, wait a bit, then run the install script
 ssh $1 "sudo reboot now";
