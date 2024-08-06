@@ -6,7 +6,6 @@ platform_bin_subdir="$rpi_home_dir/platform/bin";
 
 # install (upgrade) the rpi_home modules
 modules_dir="$rpi_home_dir/modules";
-# subdirs=$(find "$modules_dir" -mindepth 1 -maxdepth 1 -type d -not -path '.' | sort);
 module_dirs=(ha_tiny rpi_home);
 for module_dir in "${module_dirs[@]}"; do
   echo "module: $module_dir";
