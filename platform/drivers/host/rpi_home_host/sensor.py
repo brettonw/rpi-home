@@ -3,9 +3,7 @@ from __future__ import annotations
 import inspect
 from typing import Any
 
-from homeassistant.const import PERCENTAGE
-from homeassistant.components.sensor import SensorDeviceClass
-
+from ha_tiny import PERCENTAGE, SensorDeviceClass
 from rpi_home import RpiHomeSensor, RpiHomeSensorDriver, get_fields_from_proc, get_float_field_from_proc
 from .version import DRIVER_VERSION
 

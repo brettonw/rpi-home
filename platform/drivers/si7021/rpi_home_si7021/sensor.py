@@ -1,8 +1,8 @@
+import board
+from adafruit_si7021 import SI7021
 from typing import Any
 
-from adafruit_si7021 import SI7021
-import board
-from homeassistant.components.sensor import SensorDeviceClass
+from ha_tiny import SensorDeviceClass
 from rpi_home import RpiHomeSensor, RpiHomeSensorDriver
 from .version import DRIVER_VERSION
 

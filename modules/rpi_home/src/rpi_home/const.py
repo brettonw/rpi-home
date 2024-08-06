@@ -1,5 +1,7 @@
+# capture the initial state of the namespace
+_initial_namespace = set(globals().keys())
+
 RPI_HOME = "rpi_home"
-DOMAIN = RPI_HOME
 RPI_HOME_ROOT_DIR = "/usr/local/" + RPI_HOME
 RPI_HOME_WWW_DIR = "/var/www/html/"
 
@@ -30,3 +32,11 @@ REMAP = "remap"
 CACHE = "cache"
 SAMPLING_INTERVAL = "sampling_interval"
 DEFAULT_SAMPLING_INTERVAL = 10
+
+# capture the current state of the namespace
+_current_namespace = set(globals().keys())
+
+DOMAIN = RPI_HOME
+
+# dynamically create __all__ to include all variables defined in this module (not imported)
+__all__ = [name for name in (_current_namespace - _initial_namespace)]

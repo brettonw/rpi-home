@@ -7,13 +7,9 @@ import re
 import importlib
 from typing import Any, Type, TypeVar
 from abc import ABC, abstractmethod
+from ha_tiny import UnitOfTime, UnitOfTemperature, UnitOfInformation, SensorDeviceClass, DEVICE_CLASS_UNITS
 
-from homeassistant.const import UnitOfTime, UnitOfTemperature, UnitOfInformation
-from homeassistant.components.sensor import SensorDeviceClass, DEVICE_CLASS_UNITS
-
-from .const import (RPI_HOME_ROOT_DIR, DRIVER_PREFIX, DRIVER, CLASS_NAME, DISPLAY_NAME, VALUE,
-                    VALUES, SENSOR_DEVICE_CLASS, UNIT_OF_MEASUREMENT, ENTITY_ID, REMAP,
-                    DRIVER_DEFAULT_SENSOR_CLASS_NAME, DRIVER_DEFAULT_CONTROL_CLASS_NAME, VERSION, NAME)
+from .const import *
 from .utils import put_if_not_none
 
 logger = logging.getLogger(__name__)

@@ -3,21 +3,23 @@ requires = ["setuptools", "wheel"]
 build-backend = "setuptools.build_meta"
 
 [project]
-name = "rpi-home-si7021"
-version = "1.0.2"
-description = "adafruit si7021 driver for rpi-home"
-readme = "readme.md"
-requires-python = ">=3.7"
-license = {file = "license.txt"}
+name = "ha_tiny"
+version = "2024.7.3"
+description = "python module for rpi-home"
+readme = "README.md"
+requires-python = ">=3.9"
+license = {file = "LICENSE"}
 authors = [ {name = "Bretton Wade", email = "bretton.wade@irdev.us" } ]
 maintainers = [ {name = "Bretton Wade", email = "bretton.wade@irdev.us" } ]
-
-# these dependencies were installed with rpi_home, we shouldn't need them here
-#dependencies = ["homeassistant", "rpi_home", "toml"]
-dependencies = ["adafruit-circuitpython-si7021"]
+dependencies = []
+classifiers = [
+    "Programming Language :: Python",
+    "Programming Language :: Python :: 3",
+]
+keywords = ["raspberry pi", "home assistant"]
 
 [project.urls]
-#"Homepage" = "https://github.com/pypa/sampleproject"
+"Homepage" = "https://github.com/brettonw/rpi_home"
 #"Bug Reports" = "https://github.com/pypa/sampleproject/issues"
 #"Funding" = "https://donate.pypi.org"
 #"Say Thanks!" = "http://saythanks.io/to/example"
@@ -27,3 +29,6 @@ dependencies = ["adafruit-circuitpython-si7021"]
 # if there are data files included in your packages that need to be installed, specify them here.
 # for instance:
 # package-data = {"sample" = ["*.dat"]}
+
+[project.optional-dependencies]
+dev = ["pytest"]

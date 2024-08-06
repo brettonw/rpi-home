@@ -6,11 +6,8 @@ import logging
 from typing import Any
 
 from .version import RPI_HOME_VERSION
-from .const import (RPI_HOME_ROOT_DIR, NAME, DISPLAY_NAME, VERSION, SENSORS, CONTROLS, SETTINGS,
-                    TIMESTAMP, HOST, IP_ADDRESS, MAC_ADDRESS, OPERATING_SYSTEM, SERIAL_NUMBER,
-                    SAMPLING_INTERVAL, DRIVER, DEFAULT_SAMPLING_INTERVAL)
-from .utils import (load_json_file, timestamp, get_ip_address, get_mac_address, get_serial_number,
-                    get_os_description)
+from .const import *
+from .utils import load_json_file, get_ip_address, get_mac_address, get_serial_number, get_os_description, timestamp
 from .rpi_home_driver import RpiHomeSensorDriver, RpiHomeControlDriver
 
 logger = logging.getLogger(__name__)
@@ -121,6 +118,6 @@ class RpiHomeDevice:
             logger.debug(f"reading from driver ({sensor.cache_name})")
             sensor_report = sensor.report()
             if sensor_report is not None:
-                output_sensors.extend(sensor_report)
+                output_sensors += sensor_report
 
         return output

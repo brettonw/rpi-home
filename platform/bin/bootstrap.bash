@@ -30,14 +30,15 @@ echo "installing rpi_home to /usr/local/...";
 sudo mv rpi_home /usr/local/;
 ln -s /usr/local/rpi_home/;
 
-echo "bootstrap complete. installing rpi_home...";
+echo "bootstrap complete.";
 /usr/local/rpi_home/platform/bin/install.bash;
-
-# reboot
-echo "rebooting...";
 ENDSSH
 );
 
 # go to the target machine and run the commands from above
 ssh $1 "${COMMANDS}";
+
+# reboot, wait a bit, then run the install script
 ssh $1 "sudo reboot now";
+sleep 60;
+ssh $1 "/usr/local/rpi_home/platform/bin/install.bash && sudo reboot now";
