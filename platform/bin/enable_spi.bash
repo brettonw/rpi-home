@@ -1,6 +1,6 @@
 #! /usr/bin/env bash
 
-# enable i2c - code adapted from raspi-config
+# enable spi - code adapted from raspi-config
 BLACKLIST=/etc/modprobe.d/raspi-blacklist.conf;
 if [ -e /boot/firmware/config.txt ] ; then
   FIRMWARE=/firmware;
@@ -31,31 +31,26 @@ EOF
 mv "$3.bak" "$3"
 }
 
-get_i2c() {
-  if grep -q -E "^(device_tree_param|dtparam)=([^,]*,)*i2c(_arm)?(=(on|true|yes|1))?(,.*)?$" $CONFIG; then
+get_spi() {
+  if grep -q -E "^(device_tree_param|dtparam)=([^,]*,)*spi(=(on|true|yes|1))?(,.*)?$" $CONFIG; then
     echo 1;
   else
     echo 0;
   fi;
 }
 
-enable_i2c() {
-  if [ "$(get_i2c)" -eq 0 ]; then
-    echo "enabling i2c...";
-    set_config_var dtparam=i2c_arm on $CONFIG;
+enable_spi() {
+  if [ "$(get_spi)" -eq 0 ]; then
+    echo "enabling spi...";
+    set_config_var dtparam=spi on $CONFIG;
     if ! [ -e $BLACKLIST ]; then
       touch $BLACKLIST
     fi;
-    sed $BLACKLIST -i -e "s/^\(blacklist[[:space:]]*i2c[-_]bcm2708\)/#\1/";
-    sed /etc/modules -i -e "s/^#[[:space:]]*\(i2c[-_]dev\)/\1/";
-    if ! grep -q "^i2c[-_]dev" /etc/modules; then
-      printf "i2c-dev\n" >> /etc/modules;
-    fi;
-    dtparam i2c_arm=on;
-    modprobe i2c-dev;
+    sed $BLACKLIST -i -e "s/^\(blacklist[[:space:]]*spi[-_]bcm2708\)/#\1/"
+    dtparam spi=on
   else
-    echo "i2c is enabled";
+    echo "spi is enabled";
   fi;
 }
 
-enable_i2c;
+enable_spi;
