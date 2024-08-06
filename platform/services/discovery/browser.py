@@ -3,8 +3,10 @@
 # this is really just a test program to debug zeroconf
 
 import logging
+import subprocess
 
-from zeroconf import (Zeroconf, IPVersion, ServiceBrowser, ServiceListener)
+from rpi_home import RPI_HOME_VERSION, RPI_HOME
+from zeroconf import (Zeroconf, IPVersion, ServiceBrowser, ServiceListener, ServiceInfo)
 from const import _SVC_PROTOCOL_HTTP, ZEROCONF
 
 
@@ -37,6 +39,18 @@ class DiscoveryHandler(ServiceListener):
 
     def add_service(self, zc: Zeroconf, service_type: str, service_name: str) -> None:
         self._report(zc, "add", service_name)
+
+        # check to see if an rpi_home service should be updated
+        info = zc.get_service_info(_SVC_PROTOCOL_HTTP, service_name)
+        if (info is not None) and (RPI_HOME in info.properties) and (RPI_HOME_VERSION != info.properties[RPI_HOME]):
+            host: str = info.server[:-1] if info.server.endswith(".") else info.server
+
+            try:
+                print(f"UPDATE {host}")
+                ssh_command = ["ssh", host, "/usr/local/rpi_home/platform/bin/"]
+                subprocess.run(ssh_command, capture_output=False, text=True, check=True)
+            except subprocess.CalledProcessError as e:
+                print(f"failed to execute command: {e}")
 
     def update_service(self, zc: Zeroconf, service_type: str, service_name: str) -> None:
         self._short_report("update", service_name)
