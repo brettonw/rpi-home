@@ -1,6 +1,5 @@
 #!/usr/bin/env bash
 
-ssh $1 <<'ENDSSH'
 # just keep the visual clutter to a minimum
 echo > ~/.hushlogin;
 
@@ -15,11 +14,11 @@ EOF
 
 # update the system
 echo "updating package lists and upgrading installed packages...";
-sudo apt-get update && sudo apt-get upgrade -y -q;
+sudo apt-get update && sudo DEBIAN_FRONTEND=noninteractive apt-get upgrade -y;
 
 # install git
 echo "installing git...";
-sudo apt-get install -y -q git;
+sudo DEBIAN_FRONTEND=noninteractive apt-get install -y git;
 
 # clone the rpi_home repository
 echo "cloning rpi_home...";
@@ -28,14 +27,11 @@ git clone https://github.com/brettonw/rpi_home.git;
 # move it to the final destination
 echo "installing rpi_home to /usr/local/...";
 sudo mv rpi_home /usr/local/;
-ln -s /usr/local/rpi_home/;
+ln -s /usr/local/rpi_home/ .;
 
 echo "bootstrap complete.";
-/usr/local/rpi_home/platform/bin/install.bash;
-sleep 15;
-ENDSSH
 
-# reboot, wait a bit, then run the install script
-ssh $1 "sudo reboot now";
-sleep 60;
-ssh $1 "/usr/local/rpi_home/platform/bin/install.bash && sudo reboot now";
+/usr/local/rpi_home/platform/bin/install.bash;
+
+echo "cleaning up";
+sudo DEBIAN_FRONTEND=noninteractive apt-get autoremove;

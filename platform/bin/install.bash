@@ -1,45 +1,15 @@
 #! /usr/bin/env bash
 
+echo "installing rpi_home..."
+
 # setup our executing path
 rpi_home_dir=/usr/local/rpi_home;
 platform_bin_dir="$rpi_home_dir/platform/bin";
-
-# function to ask for user confirmation with a default option (chatgpt, reviewed by bsw)
-ask_user() {
-    local prompt default reply
-
-    # determine the prompt format based on the default value
-    if [[ "$2" =~ ^[Yy]$ ]]; then
-        prompt="Y/n"
-        default=Y
-    elif [[ "$2" =~ ^[Nn]$ ]]; then
-        prompt="y/N"
-        default=N
-    else
-        echo "invalid default option: $2"
-        return 1
-    fi
-
-    while true; do
-        # prompt the user with the formatted question
-        read -p "$1 ($prompt): " reply
-        # f no reply is given, use the default
-        if [[ -z "$reply" ]]; then
-            reply=$default
-        fi
-        case $reply in
-            [Yy]* ) return 0;;  # return 0 for "yes"
-            [Nn]* ) return 1;;  # return 1 for "no"
-            * ) echo "please answer yes or no.";;  # shouldn't happen
-        esac
-    done
-}
 
 # the config file
 CONFIG="/boot/firmware/config.txt";
 
 # disable bluetooth almost always
-#if ask_user "would you like to disable bluetooth?" "y"; then
 sudo bash <<EOF
 sed -i -e "s/.*dtoverlay=disable-bt/dtoverlay=disable-bt/" "$CONFIG";
 BT_CONFIG=$(grep "dtoverlay=disable-bt" "$CONFIG");
@@ -48,7 +18,6 @@ if [ -z "$BT_CONFIG" ]; then
 fi;
 echo "  bluetooth disabled!"
 EOF
-#fi;
 
 # determine if this is a wifi-only device (a raspberry pi zero or zero 0)
 is_not_raspberry_pi_zero() {
@@ -66,7 +35,6 @@ is_not_raspberry_pi_zero() {
 
 # disable wifi - probably, if there is an eth0 interface on the device
 if is_not_raspberry_pi_zero; then
-  # if ask_user "would you like to disable wifi?" "y"; then
 sudo bash <<EOF
     sed -i -e "s/.*dtoverlay=disable-wifi/dtoverlay=disable-wifi/" "$CONFIG";
     BT_CONFIG=$(grep "dtoverlay=disable-wifi" "$CONFIG");
@@ -75,7 +43,6 @@ sudo bash <<EOF
     fi;
     echo "  wifi disabled!"
 EOF
-  # fi;
 fi;
 
 # the command line file
@@ -90,7 +57,7 @@ EOF
 fi;
 
 # install the applications needed by the device at runtime
-sudo apt-get install -y -q sysstat lshw apache2 python3 python3-pip python3-venv;
+sudo DEBIAN_FRONTEND=noninteractive apt-get install -y sysstat lshw apache2 python3 python3-pip python3-venv;
 
 # create the python venv we'll be using
 if [ ! -d "$rpi_home_dir/python3" ]; then
