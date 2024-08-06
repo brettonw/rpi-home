@@ -5,3 +5,4 @@
 - figure out how to do a sensor or control history
 - figure out how to do controls...
 - put the logging level in the settings inside config.json
+- a barebones configuration website (like the esphome one)
