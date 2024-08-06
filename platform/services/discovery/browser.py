@@ -49,8 +49,8 @@ class DiscoveryHandler(ServiceListener):
                         try:
                             host: str = info.server[:-1] if info.server.endswith(".") else info.server
                             print(f"UPDATE {host} at version {value.decode("utf-8")}")
-                            ssh_command = ["ssh", host, "/usr/local/rpi_home/platform/bin/update_instance.bash"]
-                            subprocess.run(ssh_command, capture_output=False, text=True, check=True)
+                            #ssh_command = ["ssh", host, "/usr/local/rpi_home/platform/bin/update_instance.bash"]
+                            #subprocess.run(ssh_command, capture_output=False, text=True, check=True)
                         except subprocess.CalledProcessError as e:
                             print(f"failed to execute command: {e}")
                         print()

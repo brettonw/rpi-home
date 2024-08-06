@@ -1,22 +1,20 @@
 #! /usr/bin/env bash
 
 # setup our executing path
-rpi_home_subdir=/usr/local/rpi_home;
-platform_bin_subdir="$rpi_home_subdir/platform/bin";
+rpi_home_dir=/usr/local/rpi_home;
+platform_bin_subdir="$rpi_home_dir/platform/bin";
 
 # install (upgrade) the rpi_home modules
-# modules_dir="$rpi_home_subdir/modules";
+modules_dir="$rpi_home_dir/modules";
 # subdirs=$(find "$modules_dir" -mindepth 1 -maxdepth 1 -type d -not -path '.' | sort);
 module_dirs=(ha_tiny rpi_home);
 for module_dir in "${module_dirs[@]}"; do
-  # get the subsubdirectory name without the full path
-  module_dir_name=$(basename "$module_dir");
-  echo "module: $module_dir_name";
-  $rpi_home_subdir/python3/bin/pip3 install --upgrade "$module_dir";
+  echo "module: $module_dir";
+  $rpi_home_dir/python3/bin/pip3 install --upgrade "$modules_dir/$module_dir";
 done
 
 # iterate over each subdirectory of the services directory
-services_dir="$rpi_home_subdir/platform/services";
+services_dir="$rpi_home_dir/platform/services";
 service_dirs=$(find "$services_dir" -mindepth 1 -maxdepth 1 -type d -not -path '.');
 for service_dir in $service_dirs; do
   # get the subsubdirectory name without the full path
