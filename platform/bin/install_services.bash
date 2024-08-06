@@ -1,18 +1,27 @@
 #! /usr/bin/env bash
 
 # setup our executing path
-rpi_home_dir=/usr/local/rpi_home;
-platform_bin_dir="$rpi_home_dir/platform/bin";
-services_dir="$rpi_home_dir/platform/services";
+rpi_home_subdir=/usr/local/rpi_home;
+platform_bin_subdir="$rpi_home_subdir/platform/bin";
 
-# install (upgrade) the rpi_home module
-$rpi_home_dir/python3/bin/pip3 install --upgrade "$rpi_home_dir/pip/";
+# install (upgrade) the rpi_home modules
+modules_subdir="$rpi_home_subdir/modules";
+subdirs=$(find "$modules_subdir" -mindepth 1 -maxdepth 1 -type d -not -path '.');
+for subdir in $subdirs; do
+  # get the subsubdirectory name without the full path
+  subdir_name=$(basename "$subdir");
+  if [ "$subdir_name" != "bin" ]; then
+    echo "module: $subdir_name";
+    $rpi_home_subdir/python3/bin/pip3 install --upgrade "$subdir";
+  fi;
+done
 
-# iterate over each subdirectory of the services directory
-subdirs=$(find "$services_dir" -mindepth 1 -maxdepth 1 -type d -not -path '.');
-for dir in $subdirs; do
-  # get the subdirectory name without the full path
-  subdir_name=$(basename "$dir");
+# iterate over each subsubdirectory of the services subdirectory
+services_subdir="$rpi_home_subdir/platform/services";
+subdirs=$(find "$services_subdir" -mindepth 1 -maxdepth 1 -type d -not -path '.');
+for subdir in $subdirs; do
+  # get the subsubdirectory name without the full path
+  subdir_name=$(basename "$subdir");
   echo "service: $subdir_name";
-  $platform_bin_dir/install_service.bash "$subdir_name";
+  $platform_bin_subdir/install_service.bash "$subdir_name";
 done
