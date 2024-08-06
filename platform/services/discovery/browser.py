@@ -5,7 +5,7 @@
 import logging
 import subprocess
 
-from rpi_home import RPI_HOME_VERSION, RPI_HOME
+from rpi_home import RPI_HOME_VERSION, RPI_HOME, VERSION
 from zeroconf import (Zeroconf, IPVersion, ServiceBrowser, ServiceListener, ServiceInfo)
 from const import _SVC_PROTOCOL_HTTP, ZEROCONF
 
@@ -40,17 +40,20 @@ class DiscoveryHandler(ServiceListener):
     def add_service(self, zc: Zeroconf, service_type: str, service_name: str) -> None:
         self._report(zc, "add", service_name)
 
-        # check to see if an rpi_home service should be updated
+        # check to see if a rpi_home service should be updated
         info = zc.get_service_info(_SVC_PROTOCOL_HTTP, service_name)
-        if (info is not None) and (RPI_HOME in info.properties) and (RPI_HOME_VERSION != info.properties[RPI_HOME]):
-            host: str = info.server[:-1] if info.server.endswith(".") else info.server
-
-            try:
-                print(f"UPDATE {host}")
-                ssh_command = ["ssh", host, "/usr/local/rpi_home/platform/bin/"]
-                subprocess.run(ssh_command, capture_output=False, text=True, check=True)
-            except subprocess.CalledProcessError as e:
-                print(f"failed to execute command: {e}")
+        if (info is not None) and (info.properties is not None) and (len(info.properties.keys()) > 0):
+            for key, value in info.properties.items():
+                if value is not None:
+                    if (key.decode("utf-8") == RPI_HOME) and (value.decode("utf-8") != RPI_HOME_VERSION):
+                        try:
+                            host: str = info.server[:-1] if info.server.endswith(".") else info.server
+                            print(f"UPDATE {host} at version {value.decode("utf-8")}")
+                            ssh_command = ["ssh", host, "/usr/local/rpi_home/platform/bin/update_instance.bash"]
+                            subprocess.run(ssh_command, capture_output=False, text=True, check=True)
+                        except subprocess.CalledProcessError as e:
+                            print(f"failed to execute command: {e}")
+                        print()
 
     def update_service(self, zc: Zeroconf, service_type: str, service_name: str) -> None:
         self._short_report("update", service_name)
@@ -69,4 +72,5 @@ class DiscoveryHandler(ServiceListener):
             zc.close()
 
 
+print(f"starting up with {RPI_HOME} {VERSION}: {RPI_HOME_VERSION}")
 DiscoveryHandler().browse()
