@@ -4,7 +4,7 @@
     "sampling_interval": 10
   },
   "sensors": [
-    { "driver": "host" }
+    { "driver": "host", "skip": ["swap_usage"]}
   ],
   "controls": []
 }

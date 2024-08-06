@@ -113,11 +113,16 @@ class RpiHomeDevice:
         # load the control states and include them (if any)
         # put_if_not_none(output, CONTROLS, load_json_file(os.path.join(RPI_HOME_WWW_DIR, "controls.json")))
 
-        # loop through the config to read each sensor
+        # loop through the config to read each sensor and check the entity is not in the 'skip' list
         for sensor in self.sensors:
             logger.debug(f"reading from driver ({sensor.cache_name})")
-            sensor_report = sensor.report()
-            if sensor_report is not None:
-                output_sensors += sensor_report
+            sensor_reports = sensor.report()
+            if sensor_reports is not None:
+                for sensor_report in sensor_reports:
+                    if sensor_report[ENTITY_ID] not in sensor.skip:
+                        logger.debug(f"capturing {sensor_report[ENTITY_ID]}")
+                        output_sensors.append(sensor_report)
+                    else:
+                        logger.debug(f"skipping {sensor_report[ENTITY_ID]}")
 
         return output

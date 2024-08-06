@@ -95,12 +95,19 @@ def _install_driver(driver: str, class_name: str, required_type: Type[EntityType
 
 
 class RpiHomeDriverName:
-    def __init__(self, entity: dict[str, Any], required_type: Type[EntityType]):
-        self._module_name = entity[DRIVER]
-        self._class_name = entity.get(CLASS_NAME, required_type.get_default_class_name())
-        self._cache_name = self._module_name + "-" + self._class_name
+    def __init__(self, driver_spec: dict[str, Any], required_type: Type[EntityType]):
+        self._module_name: str = driver_spec[DRIVER]
+        self._class_name: str = driver_spec.get(CLASS_NAME, required_type.get_default_class_name())
+        self._cache_name: str = self._module_name + "-" + self._class_name
         # XXX validate the remap?
-        self._remap = entity.get(REMAP, {DISPLAY_NAME: {}, ENTITY_ID: {}})
+        self._remap: dict[str, Any] = driver_spec.get(REMAP, {DISPLAY_NAME: {}, ENTITY_ID: {}})
+
+        # process the skip list (if any)
+        skip = driver_spec.get(SKIP, [])
+        self._skip = {skip} if isinstance(skip, str) else set(skip) if isinstance(skip, list) else set()
+
+        # pull the parameters from the entity description
+        self._parameters: dict[str, Any] = driver_spec.get(PARAMETERS, {})
 
     @property
     def module_name(self) -> str:
@@ -114,10 +121,18 @@ class RpiHomeDriverName:
     def cache_name(self) -> str:
         return self._cache_name
 
+    @property
+    def skip(self) -> set[str]:
+        return self._skip
+
+    @property
+    def parameters(self) -> dict[str, Any]:
+        return self._parameters
+
 
 class RpiHomeDriver(RpiHomeDriverName):
-    def __init__(self, entity: dict[str, Any], required_type: Type[EntityType]):
-        super().__init__(entity, required_type)
+    def __init__(self, driver_spec: dict[str, Any], required_type: Type[EntityType]):
+        super().__init__(driver_spec, required_type)
         self.cls = _install_driver(self.module_name, self.class_name, required_type)
 
     @property
@@ -168,9 +183,10 @@ class RpiHomeSensorDriver(RpiHomeDriver):
         put_if_not_none(record, UNIT_OF_MEASUREMENT, self._verify_unit(sensor_device_class, unit_of_measurement))
         return record
 
-    def display_name_and_or_entity_id(self, display_name: str | None, entity_id: str | None) -> dict[str, Any]:
+    def display_name_and_or_entity_id(self, display_name: str | None, entity_id: str | None, sensor_device_class: SensorDeviceClass | str) -> dict[str, Any]:
         # one of them must be non-None
-        assert (entity_id is not None) or (display_name is not None)
+        if (display_name is None) and (entity_id is None):
+            entity_id = sensor_device_class
 
         # if entity_id is empty, we make up one from the display name, similarly for the display name
         if entity_id is None:
@@ -184,29 +200,29 @@ class RpiHomeSensorDriver(RpiHomeDriver):
             ENTITY_ID: self._remap.get(ENTITY_ID, {}).get(entity_id, entity_id)
         }
 
-    def make_float_value(self, display_name: str | None, entity_id: str | None, value: float, precision: int) -> dict:
-        record = self.display_name_and_or_entity_id(display_name, entity_id)
+    def make_float_value(self, display_name: str | None, entity_id: str | None, sensor_device_class: SensorDeviceClass | str, value: float, precision: int) -> dict:
+        record = self.display_name_and_or_entity_id(display_name, entity_id, sensor_device_class)
         record[VALUE] = round(value, precision)
         return record
 
-    def make_int_value(self, display_name: str | None, entity_id: str | None, value: int) -> dict:
-        record = self.display_name_and_or_entity_id(display_name, entity_id)
+    def make_int_value(self, display_name: str | None, entity_id: str | None, sensor_device_class: SensorDeviceClass | str, value: int) -> dict:
+        record = self.display_name_and_or_entity_id(display_name, entity_id, sensor_device_class)
         record[VALUE] = value
         return record
 
     def make_float_sensor(self, display_name: str | None, entity_id: str | None, value: float, precision: int, sensor_device_class: SensorDeviceClass | str, unit_of_measurement: str | None = None) -> dict:
-        return self._make_sensor(self.make_float_value(display_name, entity_id, value, precision), sensor_device_class, unit_of_measurement)
+        return self._make_sensor(self.make_float_value(display_name, entity_id, sensor_device_class, value, precision), sensor_device_class, unit_of_measurement)
 
     def make_int_sensor(self, display_name: str | None, entity_id: str | None, value: int, sensor_device_class: SensorDeviceClass | str, unit_of_measurement: str | None = None) -> dict:
-        return self._make_sensor(self.make_int_value(display_name, entity_id, value), sensor_device_class, unit_of_measurement)
+        return self._make_sensor(self.make_int_value(display_name, entity_id, sensor_device_class, value), sensor_device_class, unit_of_measurement)
 
     def make_group_sensor(self, display_name: str | None, entity_id: str | None, values: list[dict[str, Any]], sensor_device_class: SensorDeviceClass | str, unit_of_measurement: str | None = None) -> dict:
-        record = self.display_name_and_or_entity_id(display_name, entity_id)
+        record = self.display_name_and_or_entity_id(display_name, entity_id, sensor_device_class)
         record[VALUES] = values
         return self._make_sensor(record, sensor_device_class, unit_of_measurement)
 
-    def __init__(self, entity: dict[str, Any]):
-        super().__init__(entity, RpiHomeSensor)
+    def __init__(self, driver_spec: dict[str, Any]):
+        super().__init__(driver_spec, RpiHomeSensor)
 
     def report(self) -> list[dict[str, Any]] | None:
         # XXX maybe in the future this should be an object, not a class - then it could maintain a history, etc.
@@ -214,8 +230,8 @@ class RpiHomeSensorDriver(RpiHomeDriver):
 
 
 class RpiHomeControlDriver(RpiHomeDriver):
-    def __init__(self, entity: dict[str, Any]):
-        super().__init__(entity, RpiHomeControl)
+    def __init__(self, driver_spec: dict[str, Any]):
+        super().__init__(driver_spec, RpiHomeControl)
 
     def report(self) -> list[dict[str, Any]] | None:
         # XXX maybe in the future this should be an object, not a class - then it could maintain a history, etc.
