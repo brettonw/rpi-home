@@ -116,4 +116,6 @@ def get_os_description() -> str:
     return "unknown"
 
 
-__all__ = [get_field_from_proc, get_float_field_from_proc, load_json_file, put_if_not_none, timestamp, get_ip_address, get_serial_number, get_mac_address, get_os_description]
+__all__ = ["get_field_from_proc", "get_float_field_from_proc", "load_json_file", "put_if_not_none",
+           "timestamp", "get_ip_address", "get_serial_number", "get_mac_address",
+           "get_os_description"]
