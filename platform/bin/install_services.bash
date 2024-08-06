@@ -5,8 +5,8 @@ rpi_home_subdir=/usr/local/rpi_home;
 platform_bin_subdir="$rpi_home_subdir/platform/bin";
 
 # install (upgrade) the rpi_home modules
-modules_subdir="$rpi_home_subdir/modules";
-subdirs=$(find "$modules_subdir" -mindepth 1 -maxdepth 1 -type d -not -path '.');
+modules_dir="$rpi_home_subdir/modules";
+subdirs=$(find "$modules_dir" -mindepth 1 -maxdepth 1 -type d -not -path '.' | sort);
 for subdir in $subdirs; do
   # get the subsubdirectory name without the full path
   subdir_name=$(basename "$subdir");
@@ -17,8 +17,8 @@ for subdir in $subdirs; do
 done
 
 # iterate over each subsubdirectory of the services subdirectory
-services_subdir="$rpi_home_subdir/platform/services";
-subdirs=$(find "$services_subdir" -mindepth 1 -maxdepth 1 -type d -not -path '.');
+services_dir="$rpi_home_subdir/platform/services";
+subdirs=$(find "$services_dir" -mindepth 1 -maxdepth 1 -type d -not -path '.');
 for subdir in $subdirs; do
   # get the subsubdirectory name without the full path
   subdir_name=$(basename "$subdir");
