@@ -48,7 +48,7 @@ class DiscoveryHandler(ServiceListener):
         if (info is not None) and (info.properties is not None) and (len(info.properties.keys()) > 0):
             for key, value in info.properties.items():
                 if value is not None:
-                    if (key.decode("utf-8") == RPI_HOME) and (value.decode("utf-8") != RPI_HOME_VERSION):
+                    if (key.decode("utf-8") == RPI_HOME) and (value.decode("utf-8") < RPI_HOME_VERSION):
                         try:
                             host: str = info.server[:-1] if info.server.endswith(".") else info.server
                             print(f"UPDATE {host} at version {value.decode("utf-8")}")
