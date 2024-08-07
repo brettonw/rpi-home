@@ -12,8 +12,8 @@ class Sensor(RpiHomeSensor):
     def report(cls, driver: RpiHomeSensorDriver) -> list[dict[str, Any]] | None:
         sensor = SI7021(board.I2C())
         return [
-            driver.make_float_sensor(None, "temperature", sensor.temperature, 2, SensorDeviceClass.TEMPERATURE),
-            driver.make_float_sensor(None, "humidity", sensor.relative_humidity, 2, SensorDeviceClass.HUMIDITY)
+            driver.make_float_sensor(None, None, sensor.temperature, 2, SensorDeviceClass.TEMPERATURE),
+            driver.make_float_sensor(None, None, sensor.relative_humidity, 2, SensorDeviceClass.HUMIDITY)
         ]
 
     @classmethod

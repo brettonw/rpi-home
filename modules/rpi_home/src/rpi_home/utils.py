@@ -116,6 +116,23 @@ def get_os_description() -> str:
     return "unknown"
 
 
+def version_compare(a: str, b: str) -> int:
+    # split the version strings on the periods, should end up with 3 parts
+    # compare each part numerically, in turn
+    (a_split, b_split) = (a.split('.'), b.split('.'))
+
+    delta: int = len(a_split) - len(b_split)
+    if delta == 0:
+        for i in range(0, len(a_split)):
+            delta = int(a_split[i]) - int(b_split[i])
+            if delta != 0:
+                return delta / abs(delta)
+    else:
+        return delta / abs(delta)
+
+
+
+
 __all__ = ["get_lines_from_proc", "get_fields_from_proc", "get_field_from_proc",
            "get_float_field_from_proc", "load_json_file", "put_if_not_none", "timestamp",
            "get_ip_address", "get_serial_number", "get_mac_address", "get_os_description"]

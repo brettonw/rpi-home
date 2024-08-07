@@ -4,7 +4,7 @@ build-backend = "setuptools.build_meta"
 
 [project]
 name = "rpi-home-si7021"
-version = "1.0.2"
+version = "1.0.3"
 description = "adafruit si7021 driver for rpi-home"
 readme = "readme.md"
 requires-python = ">=3.7"

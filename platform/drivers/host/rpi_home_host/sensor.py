@@ -42,7 +42,14 @@ def disk_usage(driver: RpiHomeSensorDriver):
 class Sensor(RpiHomeSensor):
     @classmethod
     def report(cls, driver: RpiHomeSensorDriver) -> list[dict[str, Any]] | None:
-        return [uptime(driver), cpu_usage(driver), cpu_temperature(driver), memory_usage(driver), swap_usage(driver), disk_usage(driver)]
+        return [
+            uptime(driver),
+            cpu_usage(driver),
+            cpu_temperature(driver),
+            memory_usage(driver),
+            swap_usage(driver),
+            disk_usage(driver)
+        ]
 
     @classmethod
     def version(cls) -> str:

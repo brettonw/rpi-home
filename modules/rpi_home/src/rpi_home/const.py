@@ -35,6 +35,9 @@ CACHE = "cache"
 SAMPLING_INTERVAL = "sampling_interval"
 DEFAULT_SAMPLING_INTERVAL = 10
 
+# constants used in drivers for i2c and spi interfaces
+CHIP_SELECT_PIN = "chip_select_pin"
+
 # capture the current state of the namespace
 _current_namespace = set(globals().keys())
 

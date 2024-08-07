@@ -9,7 +9,7 @@ import threading
 from typing import NamedTuple
 from time import sleep
 
-from rpi_home import RPI_HOME_VERSION, RPI_HOME, VERSION
+from rpi_home import RPI_HOME_VERSION, RPI_HOME, VERSION, timestamp
 from zeroconf import (Zeroconf, IPVersion, ServiceBrowser, ServiceListener)
 from const import _SVC_PROTOCOL_HTTP, ZEROCONF
 
@@ -17,9 +17,10 @@ from const import _SVC_PROTOCOL_HTTP, ZEROCONF
 class DiscoveryAction(NamedTuple):
     action: str
     service_name: str
+    timestamp: int = timestamp()
 
     def report(self):
-        print(f"{self.action} ({self.service_name[:-(len(_SVC_PROTOCOL_HTTP) + 1)]})")
+        print(f"{self.action} ({self.service_name[:-(len(_SVC_PROTOCOL_HTTP) + 1)]}) @ {self.timestamp}")
 
 
 class DiscoveryHandler(ServiceListener):

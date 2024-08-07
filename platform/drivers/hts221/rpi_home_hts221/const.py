@@ -8,8 +8,8 @@ PT1000 = "PT1000"
 DEFAULT_PT = PT100
 RTD_NOMINAL = "rtd_nominal"
 REF_RESISTOR = "ref_resistor"
-CHIP_SELECT_PIN = "chip_select_pin"
-DEFAULT_CHIP_SELECT_PIN = "D5" # from the max31865 instructions
+SELECT_PIN = "select_pin"
+DEFAULT_SELECT_PIN = "D5" # from the max31865 instructions
 
 RESISTANCE = "resistance"
 
