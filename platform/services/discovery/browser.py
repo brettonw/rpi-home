@@ -8,6 +8,7 @@ import threading
 
 from typing import NamedTuple
 from time import sleep
+from datetime import datetime
 
 from rpi_home import RPI_HOME_VERSION, RPI_HOME, VERSION, timestamp
 from zeroconf import (Zeroconf, IPVersion, ServiceBrowser, ServiceListener)
@@ -20,7 +21,8 @@ class DiscoveryAction(NamedTuple):
     timestamp: int = timestamp()
 
     def report(self):
-        print(f"{self.action} ({self.service_name[:-(len(_SVC_PROTOCOL_HTTP) + 1)]}) @ {self.timestamp}")
+        date = datetime.fromtimestamp(self.timestamp / 1000.0)
+        print(f"{self.action} ({self.service_name[:-(len(_SVC_PROTOCOL_HTTP) + 1)]}) @ {date}")
 
 
 class DiscoveryHandler(ServiceListener):
