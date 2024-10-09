@@ -8,7 +8,7 @@
   "homekit": {},
   "iot_class": "local_polling",
   "issue_tracker": "https://github.com/brettonw/rpi_home/issues",
-  "requirements": ["rpi_home"],
+  "requirements": ["rpi_home", "ha_tiny"],
   "ssdp": [],
   "version": "2.0.0",
   "zeroconf": [{"type": "_http._tcp.local.", "properties": {"rpi_home": "*"}}]

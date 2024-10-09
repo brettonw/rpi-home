@@ -13,6 +13,7 @@ DRIVER_DEFAULT_CONTROL_CLASS_NAME = "Control"
 TIMESTAMP = "timestamp"
 VERSION = "version"
 HOST = "host"
+PORT = "port"
 SENSORS = "sensors"
 CONTROLS = "controls"
 NAME = "name"
@@ -34,6 +35,9 @@ PARAMETERS = "parameters"
 CACHE = "cache"
 SAMPLING_INTERVAL = "sampling_interval"
 DEFAULT_SAMPLING_INTERVAL = 10
+MQTT = "mqtt"
+USERNAME = "username"
+PASSWORD = "password"
 
 # constants used in drivers for i2c and spi interfaces
 CHIP_SELECT_PIN = "chip_select_pin"

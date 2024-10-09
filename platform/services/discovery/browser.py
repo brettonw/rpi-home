@@ -22,7 +22,8 @@ class DiscoveryAction(NamedTuple):
 
     def report(self):
         date = datetime.fromtimestamp(self.timestamp / 1000.0)
-        print(f"{self.action} ({self.service_name[:-(len(_SVC_PROTOCOL_HTTP) + 1)]}) @ {date}")
+        print()
+        print(f"{date} - {self.action} ({self.service_name[:-(len(_SVC_PROTOCOL_HTTP) + 1)]})")
 
 
 class DiscoveryHandler(ServiceListener):
@@ -45,7 +46,6 @@ class DiscoveryHandler(ServiceListener):
                         preface = "    "
         else:
             print("  no info")
-        print()
 
         # check to see if this is a rpi_home service and if it needs to be updated
         if (info is not None) and (info.properties is not None) and (len(info.properties.keys()) > 0):

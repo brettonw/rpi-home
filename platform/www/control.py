@@ -15,10 +15,12 @@ FALSE = [False, "false", "False", "FALSE", "no", "No", "NO", "off", "Off", "OFF"
 TRUE = [True, "true", "True", "TRUE", "yes", "Yes", "YES", "on", "On", "ON"]
 
 
+# the simple event "ok"
 def event_ok(event):
     event.ok({"OK": "OK"})
 
 
+# the hass event
 def handle_hass(event):
     query = event.query
     # hass events will have a driver and data
@@ -26,6 +28,17 @@ def handle_hass(event):
 
     pass
 
+
+# the mqtt event
+def handle_mqtt(event):
+    query = event.query
+    # mqtt events will have a server address, username, and password
+    # TODO, should the password be encrypted? The TLS connection will prevent it from being clear-
+    #       text on the open network
+    pass
+
+
+# a prototype light event
 def handle_light(event):
     dac = DFRobot_GP8403(0x5f)
     while dac.begin() != 0:

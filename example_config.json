@@ -1,7 +1,12 @@
 {
   "settings": {
     "display_name": "Example",
-    "sampling_interval": 10
+    "sampling_interval": 10,
+    "mqtt": {
+      "host": "blah",
+      "username": "xxx",
+      "password": "yyy"
+    }
   },
   "sensors": [
     { "driver": "host", "skip": ["swap_usage"]}

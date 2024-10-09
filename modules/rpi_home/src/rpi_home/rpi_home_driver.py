@@ -7,7 +7,7 @@ import re
 import importlib
 from typing import Any, Type, TypeVar
 from abc import ABC, abstractmethod
-from ha_tiny import UnitOfTime, UnitOfTemperature, UnitOfInformation, SensorDeviceClass, DEVICE_CLASS_UNITS
+from ha_tiny import UnitOfTime, UnitOfTemperature, UnitOfInformation, SensorDeviceClass, DEVICE_CLASS_UNITS, PERCENTAGE
 
 from .const import *
 from .utils import put_if_not_none
@@ -144,7 +144,8 @@ class RpiHomeSensorDriver(RpiHomeDriver):
     _SENSOR_DEVICE_CLASS_DEFAULT_UNIT_OF_MEASUREMENT = {
         SensorDeviceClass.DURATION: UnitOfTime.SECONDS,
         SensorDeviceClass.TEMPERATURE: UnitOfTemperature.CELSIUS,
-        SensorDeviceClass.DATA_SIZE: UnitOfInformation.BYTES
+        SensorDeviceClass.DATA_SIZE: UnitOfInformation.BYTES,
+        PERCENTAGE: PERCENTAGE
     }
 
     def _verify_unit(self, sensor_device_class: SensorDeviceClass | str, unit: str | None) -> str | None:
@@ -173,6 +174,10 @@ class RpiHomeSensorDriver(RpiHomeDriver):
                 else:
                     # XXX could warn the user their choice appears to be incorrect
                     return unit
+
+        # if we have a default, use that
+        if sensor_device_class in self._SENSOR_DEVICE_CLASS_DEFAULT_UNIT_OF_MEASUREMENT:
+            return self._SENSOR_DEVICE_CLASS_DEFAULT_UNIT_OF_MEASUREMENT[sensor_device_class]
 
         # we don't know what this is
         return unit

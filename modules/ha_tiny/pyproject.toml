@@ -4,14 +4,14 @@ build-backend = "setuptools.build_meta"
 
 [project]
 name = "ha_tiny"
-version = "2024.7.3"
+version = "2024.8.4"
 description = "python module for rpi-home"
 readme = "README.md"
 requires-python = ">=3.9"
 license = {file = "LICENSE"}
 authors = [ {name = "Bretton Wade", email = "bretton.wade@irdev.us" } ]
 maintainers = [ {name = "Bretton Wade", email = "bretton.wade@irdev.us" } ]
-dependencies = []
+dependencies = ["aenum"]
 classifiers = [
     "Programming Language :: Python",
     "Programming Language :: Python :: 3",

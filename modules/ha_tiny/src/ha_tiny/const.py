@@ -2,7 +2,7 @@ from enum import StrEnum
 from typing import Final
 
 # these are mimics for home assistant, to eliminate the installation dependency on that large
-# package during install
+# package during install at the client
 
 # capture the initial state of the namespace
 _initial_namespace = set(globals().keys())

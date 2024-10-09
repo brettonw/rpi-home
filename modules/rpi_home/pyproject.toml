@@ -4,14 +4,14 @@ build-backend = "setuptools.build_meta"
 
 [project]
 name = "rpi-home"
-version = "2.4.5"
+version = "2.4.6"
 description = "python module for rpi-home"
 readme = "README.md"
 requires-python = ">=3.9"
 license = {file = "LICENSE"}
 authors = [ {name = "Bretton Wade", email = "bretton.wade@irdev.us" } ]
 maintainers = [ {name = "Bretton Wade", email = "bretton.wade@irdev.us" } ]
-dependencies = ["toml", "zeroconf", "ha_tiny"]
+dependencies = ["toml", "zeroconf", "ha_tiny", "paho-mqtt"]
 classifiers = [
     "Programming Language :: Python",
     "Programming Language :: Python :: 3",
